@@ -1,0 +1,22 @@
+CTV3ID,CTV3PreferredTermDesc
+Y228a,High risk category for developing complication from coronavirus disease 19 caused by severe acute respiratory syndrome coronavirus 2 infection (finding)
+Y228b,Moderate risk category for developing complication from coronavirus disease 19 caused by severe acute respiratory syndrome coronavirus 2 infection (finding)
+Y228c,Low risk category for developing complication from coronavirus disease 19 caused by severe acute respiratory syndrome coronavirus 2 infection (finding)
+Y22a8,Preventative reverse self-isolation of uninfected patient from exposure to contagion (procedure)
+Y22b0,Preventative reverse self-isolation of uninfected patient  from exposure to contagion (procedure)
+Y22a9,Preventative reverse self-isolation of uninfected patient household from exposure to contagion (procedure)
+Y22b1,Shielding of uninfected patient household from exposure to contagion
+Y22b6,"Provision of advice, assessment or treatment limited due to coronavirus disease 19 caused by severe acute respiratory syndrome coronavirus 2 pandemic (situation)"
+Y211f,Severe acute respiratory syndrome coronavirus 2 vaccination invitation short message service text message sent (situation)
+Y20f9,Did not attend severe acute respiratory syndrome coronavirus 2 vaccination (finding)
+Y22ae,Consultation via video conference not available (situation)
+Y22a1,Coronavirus disease 19 caused by severe acute respiratory syndrome coronavirus 2 excluded (situation)
+Y22a3,Coronavirus disease 19 caused by severe acute respiratory syndrome coronavirus 2 excluded using clinical diagnostic criteria (situation)
+Y20fd,High priority for severe acute respiratory syndrome coronavirus 2 vaccination (finding)
+Y210d,Severe acute respiratory syndrome coronavirus 2 vaccination (procedure)
+Y212b,Severe acute respiratory syndrome coronavirus 2 vaccine not available (situation)
+Y229f,Severe acute respiratory syndrome coronavirus 2 vaccination not done (situation)
+Y212a,Severe acute respiratory syndrome coronavirus 2 vaccination not indicated (situation)
+Y211e,Severe acute respiratory syndrome coronavirus 2 vaccination declined (situation)
+Y211d,Severe acute respiratory syndrome coronavirus 2 vaccination contraindicated (situation)
+Y211f,Severe acute respiratory syndrome coronavirus 2 vaccination invitation short message service text message sent (situation)
