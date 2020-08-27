@@ -1,10 +1,6 @@
-# OpenSAFELY Research Template
+# COVID codes in OpenSAFELY Primary Care Data
 
-This is a template repository for making new OpenSAFELY resarch projects.  Eventually it'll become a framework. To get started, create a new repo using this repo as a template, delete this front matter, and edit the text that follows.
-
-# _title goes here_
-
-This is the code and configuration for our paper, _name goes here_
+This is the code and configuration for our analysis of the COVID-related clinical codes used in primary care data. Using a set of COVID-related codelists defined in [codelists.opensafely.org](https://codelists.opensafely.org/) we report code activity for patients registered at GP practices using TPP's SystmOne Clinical Information System...
 
 * The paper is [here]()
 * Raw model outputs, including charts, crosstabs, etc, are in `released_analysis_results/`
