@@ -15,7 +15,7 @@
 #     name: python3
 # ---
 
-#import pyodbc
+import pyodbc
 import os
 import pandas as pd
 import numpy as np
@@ -93,28 +93,22 @@ df = pd.read_csv(
 #when was the study cohort csv file last updated?
 cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.csv"), unit='s')
 #cohort_run_date.strftime('%Y-%m-%d')
-#cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
+cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
 
 # +
 # get build times from the database
 with closing_connection(server, database, username, password) as cnxn:
     DBbuild = pd.read_sql("""select * from LatestBuildTime""", cnxn)
     tablebuild = pd.read_sql(f"""
-        select 
-          b.BuildDesc as source, 
-          max(b.BuildDate) as latestBuild 
-        from 
-            BuildInfo as b 
-          cross join 
-            LatestBuildTime as l
-        where 
-          b.BuildDate <= l.DtLatestBuild and 
-          b.BuildDate <= convert(timestamp, {cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')}) and 
-          b.BuildDesc == "S1"
+       select 
+           max(BuildDate) as builddate from BuildInfo
+       where 
+           BuildDesc = 'S1' and 
+           BuildDate <= convert(date, '{cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')}')
     """, cnxn)
 
 DB_build_date = pd.to_datetime(DBbuild['DtLatestBuild'].values[0], format='%Y-%m-%d')
-S1_build_date = pd.to_datetime(tablebuild['latestbuild'].values[0], format='%Y-%m-%d')
+S1_build_date = pd.to_datetime(tablebuild['builddate'].values[0], format='%Y-%m-%d')
 
 # +
 ## View dataframe 
@@ -280,17 +274,29 @@ in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths
 # ## Figure 1: Frequency of primary care code use over time.
 
 # +
+#get max ylim 
+maxylim = codecounts_week[["date_probable_covid",
+                          "date_probable_covid_pos_test",
+                          "date_probable_covid_sequelae",
+                          "date_probable_covid",
+                          "date_probable_covid_pos_test",
+                          "date_probable_covid_sequelae",
+                          "date_suspected_covid",
+                          "date_suspected_covid_had_test",
+                          "date_suspected_covid_isolation",
+                          "date_suspected_covid_advice",
+                          "date_sgss_positive_test",
+                          "date_antigen_negative"]].max().max()*1.05
 
-
-fig, axs = plt.subplots(2, 3, figsize=(15,12))
+fig, axs = plt.subplots(2, 3, figsize=(15,12), sharey=True,  sharex=True)
 
 axs[0,0].plot(codecounts_week.index, codecounts_week["date_probable_covid"], color='blue', marker='o', label='Clinical code for probable case')
 axs[0,0].plot(codecounts_week.index, codecounts_week["date_probable_covid_pos_test"], color='red', marker='o', label='Clinical code for positive test')
 axs[0,0].plot(codecounts_week.index, codecounts_week["date_probable_covid_sequelae"], color='green', marker='o', label='Clinical code for sequelae')
 axs[0,0].set_ylabel('Count per week')
 axs[0,0].xaxis.set_tick_params(labelrotation=70)
-axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,0].grid(True)
+#axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
+axs[0,0].grid(axis='y')
 axs[0,0].set_title(f"""
     Primary Care Probable COVID-19\n
     Clinical code, N= {codecounts_total["date_probable_covid"]}
@@ -305,8 +311,8 @@ axs[0,1].plot(codecounts_week.index, codecounts_week["date_suspected_covid_had_t
 axs[0,1].plot(codecounts_week.index, codecounts_week["date_suspected_covid_isolation"], color='green', marker='o', label='Clinical code for isolation')
 axs[0,1].set_ylabel('Count per week')
 axs[0,1].xaxis.set_tick_params(labelrotation=70)
-axs[0,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,1].grid(True)
+#axs[0,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
+axs[0,1].grid(axis='y')
 axs[0,1].set_title(f"""
     Primary Care Suspected COVID-19\n
     Clinical code, N= {codecounts_total["date_suspected_covid"]}
@@ -319,8 +325,8 @@ axs[0,1].legend()
 axs[0,2].plot(codecounts_week.index, codecounts_week["date_suspected_covid_advice"], color='blue', marker='o', label='Clinical code for advice to isolate')
 axs[0,2].set_ylabel('Count per week')
 axs[0,2].xaxis.set_tick_params(labelrotation=70)
-axs[0,2].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,2].grid(True)
+#axs[0,2].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
+axs[0,2].grid(axis='y')
 axs[0,2].set_title(f"""
     Primary Care Suspected COVID-19\n
     Advice given, N= {codecounts_total["date_suspected_covid_advice"]}
@@ -335,8 +341,8 @@ axs[0,2].legend()
 axs[1,0].plot(codecounts_week.index, codecounts_week["date_sgss_positive_test"], color='blue', marker='o', label='SGSS positive test')
 axs[1,0].set_ylabel('Count per week')
 axs[1,0].xaxis.set_tick_params(labelrotation=70)
-axs[1,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[1,0].grid(True)
+#axs[1,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
+axs[1,0].grid(axis='y')
 axs[1,0].set_title(f"""
     SGSS tests \n
     Positive test, N= {codecounts_total["date_sgss_positive_test"]}
@@ -349,8 +355,8 @@ axs[1,0].legend()
 axs[1,1].plot(codecounts_week.index, codecounts_week["date_antigen_negative"], color='blue', marker='o', label='Clinical code for negative antigen test')
 axs[1,1].set_ylabel('Count per week')
 axs[1,1].xaxis.set_tick_params(labelrotation=70)
-axs[1,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[1,1].grid(True)
+#axs[1,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
+axs[1,1].grid(axis='y')
 axs[1,1].set_title(f"""
     Primary Care antigen negative \n
     Clinical code, N= {codecounts_total["date_antigen_negative"]}
@@ -370,6 +376,11 @@ plt.show()
 
 # +
 # derive time-to-event censoring info
+
+# death date or last date of follow up
+df['date_event'] = np.where(df['date_died_ons']<=df['end_date'], df['date_died_ons'], df['end_date'])
+
+# censoring indiators
 df['indicator_death'] = np.where((df['date_died_ons']<=df['end_date']) & (df['died_ons']==1), 1, 0)
 df['indicator_death_covid'] = np.where((df['date_died_ons']<=df['end_date'])  & (df['died_ons_covid']==1), 1, 0)
 df['indicator_death_noncovid'] = np.where((df['date_died_ons']<=df['end_date']) & (df['died_ons_noncovid']==1), 1, 0)
@@ -378,25 +389,25 @@ df['indicator_death_noncovid'] = np.where((df['date_died_ons']<=df['end_date']) 
 df['death_category'] = np.where(df['date_died_ons']<=df['end_date'], df['death_category'], "alive")
 
 # derive time-to-death from positive test date
-df['pvetestSGSS_to_death'] = (df['date_died_ons'] - df['date_sgss_positive_test']).astype('timedelta64[D]')
-df['pvetestPC_to_death'] = (df['date_died_ons'] - df['date_probable_covid_pos_test']).astype('timedelta64[D]')
+df['pvetestSGSS_to_death'] = (df['date_event'] - df['date_sgss_positive_test']).astype('timedelta64[D]')
+df['pvetestPC_to_death'] = (df['date_event'] - df['date_probable_covid_pos_test']).astype('timedelta64[D]')
 
 ## positive test as indicated in SGSS or in primary care
-df_pvetestSGSS = df.copy()[~np.isnan(df['pvetestSGSS_to_death'])]
-df_pvetestPC = df.copy()[~np.isnan(df['pvetestPC_to_death'])]
+df_pvetestSGSS = df[~np.isnan(df['date_sgss_positive_test'])]
+df_pvetestPC = df[~np.isnan(df['date_probable_covid_pos_test'])]
 
-
-
-
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,5), sharey=True)
-
-# excluding non SGSS positive tests
 
 kmdata = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death'])
 kmdata_covid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_noncovid'])
 
-axes[0].step(kmdata['times'], 1-kmdata['kmestimate'], label='all deaths') 
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,5), sharey=True)
+
+# SGSS pos test to death
+
+
+
+#axes[0].step(kmdata['times'], 1-kmdata['kmestimate'], label='all deaths') 
 axes[0].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[0].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[0].set_xlabel('time from positive test to death')
@@ -406,12 +417,13 @@ axes[0].legend()
 axes[0].set_xlim(0, 80)
 #plt.show()
 
-# excluding non SGSS positive tests and negative time to death
+# PC pos test to death
+
 kmdata = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death'])
 kmdata_covid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_noncovid'])
 
-axes[1].step(kmdata['times'], 1-kmdata['kmestimate'], label='all deaths') 
+#axes[1].step(kmdata['times'], 1-kmdata['kmestimate'], label='all deaths') 
 axes[1].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[1].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[1].set_xlabel('time from positive test to death')
@@ -420,11 +432,13 @@ axes[1].set_title("Positive test date identified from primary care data")
 axes[1].set_xlim(0, 80)
 #plt.show()
 
-fig.suptitle("Time from first positive test until covid or non-covid death")
+fig.suptitle("Time from first positive test until covid or non-covid death\n", y=1, fontsize=14)
 fig.tight_layout()
 #kmdata
-# -
 
+# +
+
+# -
 
 
 display(Markdown(f"""
@@ -441,7 +455,7 @@ If there are multiple events per person within the extraction period, the latest
 Only patients registered at their practice continuously for one year up to 1 Feb 2020 are included.
 
 Click the button below to show the underlying python code that this notebook is based on.
-""")
+"""))
 
 HTML('''<script>
 code_show=true; 
