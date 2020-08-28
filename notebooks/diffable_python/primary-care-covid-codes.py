@@ -25,6 +25,20 @@ from contextlib import contextmanager
 from datetime import date
 from IPython.display import display, Markdown, HTML
 
+HTML('''<script>
+code_show=false; 
+function code_toggle() {
+ if (code_show){
+ $('div.input').hide();
+ } else {
+ $('div.input').show();
+ }
+ code_show = !code_show
+} 
+$( document ).ready(code_toggle);
+</script>
+''')
+
 # +
 # dummy data
 #server = 'covid.ebmdatalab.net,1433'
@@ -93,7 +107,7 @@ df = pd.read_csv(
 #when was the study cohort csv file last updated?
 cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.csv"), unit='s')
 #cohort_run_date.strftime('%Y-%m-%d')
-cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
+#cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
 
 # +
 # get build times from the database
@@ -457,19 +471,12 @@ Only patients registered at their practice continuously for one year up to 1 Feb
 Click the button below to show the underlying python code that this notebook is based on.
 """))
 
-HTML('''<script>
-code_show=true; 
-function code_toggle() {
- if (code_show){
- $('div.input').hide();
- } else {
- $('div.input').show();
- }
- code_show = !code_show
-} 
-$( document ).ready(code_toggle);
-</script>
-<form action="javascript:code_toggle()"><input type="submit" value="Toggle on/off the underlying code"></form>''')
+# +
+
+HTML('''
+Click <a href="javascript:code_toggle()">here</a> to show the underlying python code that this notebook is based on.
+''')
+# -
 
 #
 #
