@@ -165,7 +165,7 @@ def eventcountseries(consec_dates, observed_dates):
 
 
 
-## function that takes event times and a censor indicator (1=event, 0=censor)
+## function that takes event times (=times, a series) and a censor indicator (=indicators, a series taking values 1=event, 0=censor)
 ## and produces a kaplan meier estimates in a dataframe
 def KMestimate(times, indicators):   
 
@@ -216,6 +216,7 @@ def KMestimate(times, indicators):
 # +
 # choose only date variables
 activity_dates = df.filter(items=date_cols)
+activity_dates.columns = activity_dates.columns.str.replace("date_", "")
 
 # count code activity per day
 codecounts_day = activity_dates.apply(lambda x: eventcountseries(consec_dates=consec_dates, observed_dates=x))
@@ -225,6 +226,7 @@ codecounts_week = codecounts_day.resample('W').sum()
 
 #derive total code activity over whole time period
 codecounts_total = codecounts_week.sum()
+
 
 # + [markdown]
 # # COVID-19 identification in primary care records from Feb-July 2020: classification of codes for OpenSAFELY studies
@@ -249,33 +251,149 @@ codecounts_total = codecounts_week.sum()
 #
 # A total of 174 terms were identified. These were assigned into the 13 categories/subcategories detailed in the table below. The 13 codelists for classifying COVID-19 are publicly available on OpenSAFELY.org for inspection and re-use [codelists.opensafely.org](https://codelists.opensafely.org/). 
 #
-# | Category  |  Sub-category (if applicable) |  Description |
-# |:---|:---|:---|
-# | Probable case | Clinical code | Clinical diagnosis of COVID-19 made |
-# |  | Positive test |  Record of positive test result for SARS-CoV-2 (__active infection__) |
-# |  | Sequelae | Symptom or condition recorded as secondary to SARS-CoV-2 |
-# | Suspected case | Advice | General advice given about SARS-CoV-2 |
-# |  | Had test | Record of having had a test for active infection with SARS-CoV-2 |
-# |  | Isolation code | Self or household-isolation recorded |
-# |  | Non-sepcific clinical assessment | Clinical assessments plausibly related to COVID-19 |
-# |  | Suspected codes | "Suspect" mentioned, or previous COVID-19 reported |
-# | Historic case | - | SARS-CoV-2 antibodies or immunity recorded |
-# | Potential historic case | - | Has had a test for SARS-CoV-2 antibodies |
-# | Exposure to disease | - | Record of contact/exposure/procedure |
-# | Antigen test negative | - | Record of negative test result for SARS-CoV-2 |
-# | COVID-19 related contact but case status not specified | - | Healthcare contact related to COVID-19 but not case status |
 #
-#
+
+#| Category  |  Sub-category (if applicable) |  Description |
+#|:---|:---|:---|
+#| Probable case | Clinical code | Clinical diagnosis of COVID-19 made |
+#|  | Positive test |  Record of positive test result for SARS-CoV-2 (__active infection__) |
+#|  | Sequelae | Symptom or condition recorded as secondary to SARS-CoV-2 |
+#| Suspected case | Advice | General advice given about SARS-CoV-2 |
+#|  | Had test | Record of having had a test for active infection with SARS-CoV-2 |
+#|  | Isolation code | Self or household-isolation recorded |
+#|  | Non-sepcific clinical assessment | Clinical assessments plausibly related to COVID-19 |
+#|  | Suspected codes | "Suspect" mentioned, or previous COVID-19 reported |
+#| Historic case | - | SARS-CoV-2 antibodies or immunity recorded |
+#| Potential historic case | - | Has had a test for SARS-CoV-2 antibodies |
+#| Exposure to disease | - | Record of contact/exposure/procedure |
+#| Antigen test negative | - | Record of negative test result for SARS-CoV-2 |
+#| COVID-19 related contact but case status not specified | - | Healthcare contact related to COVID-19 but not case status |
+
+
+# +
+tableindex = [
+    "probable_covid",
+    "probable_covid_pos_test",
+    "probable_covid_sequelae",
+    "suspected_covid_advice",
+    "suspected_covid_had_test",
+    "suspected_covid_isolation",
+    "suspected_covid_nonspecific",
+    "suspected_covid",
+    "historic_covid",
+    "potential_historic_covid",
+    "exposure_to_disease",
+    "antigen_negative",
+    "covid_unrelated_to_case_status"
+]
+
+tabledata = {
+    'Category':[
+        'Probable case',
+        '',
+        '',
+        'Suspected case',
+        '',
+        '',
+        '',
+        '',
+        'Historic case',
+        'Potential historic case',
+        'Exposure to disease',
+        'Antigen test negative',
+        'COVID-19 related but case status not specified',        
+    ],
+    'Sub-category':[
+        'Clinical code',
+        'Positive test',
+        'Sequalae',
+        'Advice',
+        'Had test',
+        'Isolation code',
+        'Non-specific clinical assessment',
+        'Suspected codes',
+        '-',
+        '-',
+        '-',
+        '-',
+        '-',
+    ],
+    'Codelist':[
+        'Probable case: clinical code',
+        'Probable case: positive test',
+        'Probable case: sequelae',
+        'Suspected case: advice',
+        'Suspected case: had test',
+        'Suspected case: isolation code',
+        'Suspected case: non-specific clinical assessment',
+        'Suspected case: suspected codes',
+        'Historic case',
+        'Potential historic case',
+        'Exposure to disease',
+        'Antigen test negative',
+        'COVID-19 related but case status not specified',   
+    ],
+    'Description':[
+        'Clinical diagnosis of COVID-19 made',
+        'Record of positive test result for SARS-CoV-2 (active infection)',
+        'Symptom or condition recorded as secondary to SARS-CoV-2',
+        'General advice given about SARS-CoV-2',
+        'Record of having had a test for active infection with SARS-CoV-2',
+        'Self- or household-isolation recorded',
+        'Clinical assessments plausibly related to COVID-19',
+        '"Suspect" mentioned, or previous COVID-19 reported',
+        'SARS-CoV-2 antibodies or immunity recorded',
+        'Has had a test for SARS-CoV-2 antibodies',
+        'Record of contact/exposure/procedure',
+        'Record of negative test result for SARS-CoV-2',
+        'Healthcare contact related to COVID-19 but not case status',      
+    ],
+    'link':[
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-clinical-code/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-positive-test/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-advice/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-had-test/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-isolation-code/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-nonspecific-clinical-assessment/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-codes-suspected-codes/2020-07-16/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-historic-case/2020-06-23/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-potential-historic-case/2020-06-23/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-exposure-to-disease/2020-06-23/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-antigen-test-negative/2020-06-24/",
+        "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-unrelated-to-case-status/2020-06-23/",
+    ]
+}
+
+tabledata = pd.DataFrame(tabledata, index=tableindex)
+tabledata['Codelist']="<a href='"+tabledata['link']+"'>"+tabledata['Codelist']+"</a>"
+
+codecounts_total.name = "Count"
+
+tabledata = tabledata.merge(codecounts_total, left_index=True, right_index=True)
+
+# easy but not ideal output
+#display(HTML(tabledata.to_html(index=False, justify='left')))
+
+# use styling instead - https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+styles = [dict(selector="th", props=[("text-align", "left")])]
+
+# with hyperlinks
+tabledata[["Codelist", "Description", "Count"]].style.set_properties(subset=["Codelist","Description"], **{'text-align':'left', 'index':False}).set_table_styles(styles).hide_index()
+
+#without hyperlinks
+#tabledata[["Category", "Sub-category" "Description", "Count"]].style.set_properties(subset=["Category","Sub-category","Description"], **{'text-align':'left', 'index':False}).set_table_styles(styles).hide_index()
+# -
 
 display(Markdown(f"""
 "Probable" and "suspected" sub-categories are explored further here. 
 Plots of frequency of codes (Figure 1) showed that while the frequency of use of 
-"probable case: clinical code" (n={codecounts_total["date_probable_covid"]}) was similar to "probable case: positive test" (n={codecounts_total["date_probable_covid_pos_test"]}) over time, 
-"probable case: sequelae" codes were used much less frequently over the whole time period (n={codecounts_total["date_probable_covid_sequelae"]}). 
+"probable case: clinical code" (n={codecounts_total["probable_covid"]}) was similar to "probable case: positive test" (n={codecounts_total["probable_covid_pos_test"]}) over time, 
+"probable case: sequelae" codes were used much less frequently over the whole time period (n={codecounts_total["probable_covid_sequelae"]}). 
 Suspected case sub-categories were used much more frequently than 
-"probable case: positive test" - suspected case: "advice given" (n={codecounts_total["date_suspected_covid_advice"]}),
-"isolation code" (n={codecounts_total["date_suspected_covid_isolation"]})
-and "suspected codes" (n={codecounts_total["date_suspected_covid"]}) (Figure 1). 
+"probable case: positive test" - suspected case: "advice given" (n={codecounts_total["suspected_covid_advice"]}),
+"isolation code" (n={codecounts_total["suspected_covid_isolation"]})
+and "suspected codes" (n={codecounts_total["suspected_covid"]}) (Figure 1). 
 Plots of causes of death after each code showed marked differences in the proportion of death due to COVID-19 compared to deaths due to other causes for all probable case sub-categories; 
 in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths following codes in the "suspected" COVID-19 case sub-categories (Figure 2).
 """))
@@ -288,62 +406,49 @@ in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths
 # ## Figure 1: Frequency of primary care code use over time.
 
 # +
-#get max ylim 
-maxylim = codecounts_week[["date_probable_covid",
-                          "date_probable_covid_pos_test",
-                          "date_probable_covid_sequelae",
-                          "date_probable_covid",
-                          "date_probable_covid_pos_test",
-                          "date_probable_covid_sequelae",
-                          "date_suspected_covid",
-                          "date_suspected_covid_had_test",
-                          "date_suspected_covid_isolation",
-                          "date_suspected_covid_advice",
-                          "date_sgss_positive_test",
-                          "date_antigen_negative"]].max().max()*1.05
 
 fig, axs = plt.subplots(2, 3, figsize=(15,12), sharey=True,  sharex=True)
 
-axs[0,0].plot(codecounts_week.index, codecounts_week["date_probable_covid"], color='blue', marker='o', label='Clinical code for probable case')
-axs[0,0].plot(codecounts_week.index, codecounts_week["date_probable_covid_pos_test"], color='red', marker='o', label='Clinical code for positive test')
-axs[0,0].plot(codecounts_week.index, codecounts_week["date_probable_covid_sequelae"], color='green', marker='o', label='Clinical code for sequelae')
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], color='blue', marker='o', label='Clinical code for probable case')
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"], color='red', marker='o', label='Clinical code for positive test')
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], color='green', marker='o', label='Clinical code for sequelae')
 axs[0,0].set_ylabel('Count per week')
 axs[0,0].xaxis.set_tick_params(labelrotation=70)
 #axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
 axs[0,0].grid(axis='y')
 axs[0,0].set_title(f"""
     Primary Care Probable COVID-19\n
-    Clinical code, N= {codecounts_total["date_probable_covid"]}
-    Positive test, N= {codecounts_total["date_probable_covid_pos_test"]}
-    Sequelae code, N= {codecounts_total["date_probable_covid_sequelae"]}
+    Clinical code, N= {codecounts_total["probable_covid"]}
+    Positive test, N= {codecounts_total["probable_covid_pos_test"]}
+    Sequelae code, N= {codecounts_total["probable_covid_sequelae"]}
 """, loc='left', y=1)
 axs[0,0].legend()
    
     
-axs[0,1].plot(codecounts_week.index, codecounts_week["date_suspected_covid"], color='blue', marker='o', label='Clinical code for suspect')
-axs[0,1].plot(codecounts_week.index, codecounts_week["date_suspected_covid_had_test"], color='red', marker='o', label='Clinical code for had test')
-axs[0,1].plot(codecounts_week.index, codecounts_week["date_suspected_covid_isolation"], color='green', marker='o', label='Clinical code for isolation')
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], color='blue', marker='o', label='Clinical code for suspect')
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_had_test"], color='red', marker='o', label='Clinical code for had test')
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_isolation"], color='green', marker='o', label='Clinical code for isolation')
 axs[0,1].set_ylabel('Count per week')
 axs[0,1].xaxis.set_tick_params(labelrotation=70)
 #axs[0,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
 axs[0,1].grid(axis='y')
 axs[0,1].set_title(f"""
     Primary Care Suspected COVID-19\n
-    Clinical code, N= {codecounts_total["date_suspected_covid"]}
-    Tested, N= {codecounts_total["date_suspected_covid_had_test"]}
-    Isolated, N= {codecounts_total["date_suspected_covid_isolation"]}
+    Clinical code, N= {codecounts_total["suspected_covid"]}
+    Tested, N= {codecounts_total["suspected_covid_had_test"]}
+    Isolated, N= {codecounts_total["suspected_covid_isolation"]}
 """, loc='left', y=1)
 axs[0,1].legend()
 
 
-axs[0,2].plot(codecounts_week.index, codecounts_week["date_suspected_covid_advice"], color='blue', marker='o', label='Clinical code for advice to isolate')
+axs[0,2].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], color='blue', marker='o', label='Clinical code for advice to isolate')
 axs[0,2].set_ylabel('Count per week')
 axs[0,2].xaxis.set_tick_params(labelrotation=70)
 #axs[0,2].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
 axs[0,2].grid(axis='y')
 axs[0,2].set_title(f"""
     Primary Care Suspected COVID-19\n
-    Advice given, N= {codecounts_total["date_suspected_covid_advice"]}
+    Advice given, N= {codecounts_total["suspected_covid_advice"]}
     
     
 """, loc='left', y=1)
@@ -352,28 +457,28 @@ axs[0,2].legend()
 
 
 
-axs[1,0].plot(codecounts_week.index, codecounts_week["date_sgss_positive_test"], color='blue', marker='o', label='SGSS positive test')
+axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], color='blue', marker='o', label='SGSS positive test')
 axs[1,0].set_ylabel('Count per week')
 axs[1,0].xaxis.set_tick_params(labelrotation=70)
 #axs[1,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
 axs[1,0].grid(axis='y')
 axs[1,0].set_title(f"""
     SGSS tests \n
-    Positive test, N= {codecounts_total["date_sgss_positive_test"]}
+    Positive test, N= {codecounts_total["sgss_positive_test"]}
     
     
 """, loc='left', y=1)
 axs[1,0].legend()
 
 
-axs[1,1].plot(codecounts_week.index, codecounts_week["date_antigen_negative"], color='blue', marker='o', label='Clinical code for negative antigen test')
+axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], color='blue', marker='o', label='Clinical code for negative antigen test')
 axs[1,1].set_ylabel('Count per week')
 axs[1,1].xaxis.set_tick_params(labelrotation=70)
 #axs[1,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
 axs[1,1].grid(axis='y')
 axs[1,1].set_title(f"""
     Primary Care antigen negative \n
-    Clinical code, N= {codecounts_total["date_antigen_negative"]}
+    Clinical code, N= {codecounts_total["antigen_negative"]}
 
 
 """, loc='left', y=1)
