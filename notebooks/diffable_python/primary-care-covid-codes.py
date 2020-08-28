@@ -366,7 +366,7 @@ tabledata = {
 }
 
 tabledata = pd.DataFrame(tabledata, index=tableindex)
-tabledata['Codelist']="<a href='"+tabledata['link']+"'>"+tabledata['Codelist']+"</a>"
+tabledata['Codelist']="<a href='"+tabledata['link']+"' target='_blank'>"+tabledata['Codelist']+"</a>"
 
 codecounts_total.name = "Count"
 
