@@ -15,7 +15,37 @@
 #     name: python3
 # ---
 
-import pyodbc
+# + active=""
+# <div class="output_html rendered_html output_subarea output_execute_result">
+# FAO nerds: click the button below to show the underlying Python code that this notebook is based on.
+# </div>
+#     
+# <script>
+#   function code_toggle() {
+#     if (code_shown){
+#       $('div.input').hide('500');
+#       $('div.prompt').hide();
+#       $('#toggleButton').val('Show code')
+#     } else {
+#       $('div.input').show('500');
+#       $('div.prompt').show();
+#       $('#toggleButton').val('Hide code')
+#     }
+#     code_shown = !code_shown
+#   }
+#
+#   $( document ).ready(function(){
+#     code_shown=false;
+#     $('div.input').hide();
+#     $('div.prompt').hide();
+#   });
+# </script>
+# <form action="javascript:code_toggle()">
+#   <input type="submit" id="toggleButton" value="Show code">
+# </form>
+# -
+
+#import pyodbc
 import os
 import pandas as pd
 import numpy as np
@@ -24,20 +54,6 @@ import matplotlib.ticker as ticker
 from contextlib import contextmanager
 from datetime import date
 from IPython.display import display, Markdown, HTML
-
-HTML('''<script>
-code_show=false; 
-function code_toggle() {
- if (code_show){
- $('div.input').hide();
- } else {
- $('div.input').show();
- }
- code_show = !code_show
-} 
-$( document ).ready(code_toggle);
-</script>
-''')
 
 # +
 # dummy data
@@ -253,21 +269,22 @@ codecounts_total = codecounts_week.sum()
 #
 #
 
-#| Category  |  Sub-category (if applicable) |  Description |
-#|:---|:---|:---|
-#| Probable case | Clinical code | Clinical diagnosis of COVID-19 made |
-#|  | Positive test |  Record of positive test result for SARS-CoV-2 (__active infection__) |
-#|  | Sequelae | Symptom or condition recorded as secondary to SARS-CoV-2 |
-#| Suspected case | Advice | General advice given about SARS-CoV-2 |
-#|  | Had test | Record of having had a test for active infection with SARS-CoV-2 |
-#|  | Isolation code | Self or household-isolation recorded |
-#|  | Non-sepcific clinical assessment | Clinical assessments plausibly related to COVID-19 |
-#|  | Suspected codes | "Suspect" mentioned, or previous COVID-19 reported |
-#| Historic case | - | SARS-CoV-2 antibodies or immunity recorded |
-#| Potential historic case | - | Has had a test for SARS-CoV-2 antibodies |
-#| Exposure to disease | - | Record of contact/exposure/procedure |
-#| Antigen test negative | - | Record of negative test result for SARS-CoV-2 |
-#| COVID-19 related contact but case status not specified | - | Healthcare contact related to COVID-19 but not case status |
+# + [markdown]
+# | Category  |  Sub-category (if applicable) |  Description |
+# |:---|:---|:---|
+# | Probable case | Clinical code | Clinical diagnosis of COVID-19 made |
+# |  | Positive test |  Record of positive test result for SARS-CoV-2 (__active infection__) |
+# |  | Sequelae | Symptom or condition recorded as secondary to SARS-CoV-2 |
+# | Suspected case | Advice | General advice given about SARS-CoV-2 |
+# |  | Had test | Record of having had a test for active infection with SARS-CoV-2 |
+# |  | Isolation code | Self or household-isolation recorded |
+# |  | Non-sepcific clinical assessment | Clinical assessments plausibly related to COVID-19 |
+# |  | Suspected codes | "Suspect" mentioned, or previous COVID-19 reported |
+# | Historic case | - | SARS-CoV-2 antibodies or immunity recorded |
+# | Potential historic case | - | Has had a test for SARS-CoV-2 antibodies |
+# | Exposure to disease | - | Record of contact/exposure/procedure |
+# | Antigen test negative | - | Record of negative test result for SARS-CoV-2 |
+# | COVID-19 related contact but case status not specified | - | Healthcare contact related to COVID-19 but not case status |
 
 
 # +
@@ -398,6 +415,7 @@ Plots of causes of death after each code showed marked differences in the propor
 in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths following codes in the "suspected" COVID-19 case sub-categories (Figure 2).
 """))
 
+
 # ## Conclusion
 #
 # A high level of COVID-19 related mortality in people identified as "probable cases" is consistent with these codes identifying true COVID-19 cases with high specificity. "Suspected case" codes were more widely used but a much lower level of subsequent COVID-19 related mortality suggesting that these codes may have low specificity for COVID-19 and should be used with care.  Further work will include assessing the impact of the introduction of pillar 2 test results on utilisation of these codes, investigating code sensitivity, and understanding how individual patient characteristics relate to the varying probability of being tested.
@@ -407,22 +425,28 @@ in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths
 
 # +
 
+def plotstyle(axesrow, axescol, title):
+    axs[0,0].set_ylabel('Count per week')
+    axs[0,0].xaxis.set_tick_params(labelrotation=70)
+    #axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
+    axs[0,0].grid(axis='y')
+    axs[0,0].legend()
+    axs[0,0].set_title(title, loc='left', y=1)
+    
+
+
 fig, axs = plt.subplots(2, 3, figsize=(15,12), sharey=True,  sharex=True)
 
 axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], color='blue', marker='o', label='Clinical code for probable case')
 axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"], color='red', marker='o', label='Clinical code for positive test')
 axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], color='green', marker='o', label='Clinical code for sequelae')
-axs[0,0].set_ylabel('Count per week')
-axs[0,0].xaxis.set_tick_params(labelrotation=70)
-#axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,0].grid(axis='y')
-axs[0,0].set_title(f"""
+plotstyle(0,0, f"""
     Primary Care Probable COVID-19\n
     Clinical code, N= {codecounts_total["probable_covid"]}
     Positive test, N= {codecounts_total["probable_covid_pos_test"]}
     Sequelae code, N= {codecounts_total["probable_covid_sequelae"]}
-""", loc='left', y=1)
-axs[0,0].legend()
+""");
+
    
     
 axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], color='blue', marker='o', label='Clinical code for suspect')
@@ -576,13 +600,6 @@ Only patients registered at their practice continuously for one year up to 1 Feb
 Click the button below to show the underlying python code that this notebook is based on.
 """))
 
-# +
-
-HTML('''
-Click <a href="javascript:code_toggle()">here</a> to show the underlying python code that this notebook is based on.
-''')
-# -
-
 #
 #
 #
@@ -594,3 +611,5 @@ Click <a href="javascript:code_toggle()">here</a> to show the underlying python 
 # Currently, OpenSAFELY uses the electronic health records of all patients registered at a GP practice using the SystmOne clinical information system run by TPP, covering around 22 million people. Additional data for these patients covering COVID-related tests, hospital admissions, ITU admissions, and registered deaths are also securely imported to the platform. 
 #
 # For more information, visit https://opensafely.org
+
+
