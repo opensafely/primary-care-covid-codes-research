@@ -16,9 +16,11 @@
 # ---
 
 # + active=""
+# <!--
 # <div class="output_html rendered_html output_subarea output_execute_result">
 # FAO nerds: click the button below to show the underlying Python code that this notebook is based on.
 # </div>
+# -->
 #     
 # <script>
 #   function code_toggle() {
@@ -43,6 +45,7 @@
 # <form action="javascript:code_toggle()">
 #   <input type="submit" id="toggleButton" value="Show code">
 # </form>
+#
 # -
 
 #import pyodbc
@@ -270,7 +273,7 @@ codecounts_total = codecounts_week.sum()
 #
 
 # + [markdown]
-# | Category  |  Sub-category (if applicable) |  Description |
+# <!--| Category  |  Sub-category (if applicable) |  Description |
 # |:---|:---|:---|
 # | Probable case | Clinical code | Clinical diagnosis of COVID-19 made |
 # |  | Positive test |  Record of positive test result for SARS-CoV-2 (__active infection__) |
@@ -285,6 +288,7 @@ codecounts_total = codecounts_week.sum()
 # | Exposure to disease | - | Record of contact/exposure/procedure |
 # | Antigen test negative | - | Record of negative test result for SARS-CoV-2 |
 # | COVID-19 related contact but case status not specified | - | Healthcare contact related to COVID-19 but not case status |
+# -->
 
 
 # +
