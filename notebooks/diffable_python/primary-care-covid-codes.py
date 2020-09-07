@@ -48,7 +48,7 @@
 #
 # -
 
-#import pyodbc
+import pyodbc
 import os
 import pandas as pd
 import numpy as np
