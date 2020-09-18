@@ -48,7 +48,7 @@
 #
 # -
 
-import pyodbc
+#import pyodbc
 import os
 import pandas as pd
 import numpy as np
@@ -58,6 +58,134 @@ from contextlib import contextmanager
 from datetime import date
 from IPython.display import display, Markdown, HTML
 #from lib.functions import *
+
+# +
+import pandas as pd
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from contextlib import contextmanager
+
+
+# use this to open connection
+@contextmanager
+def closing_connection(server, database, username, password):
+    dsn = (
+        "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
+        + server
+        + ";DATABASE="
+        + database
+        + ";UID="
+        + username
+        + ";PWD="
+        + password
+    )
+    cnxn = pyodbc.connect(dsn)
+    try:
+        yield cnxn
+    finally:
+        cnxn.close()
+
+
+   
+def DBbuildtimes(up_to=None):
+
+    # returns a dataframe containing the latest build time for the OS DB tables
+    # if up_to is specified, it takes the most recent build before that date
+    
+    if up_to is None:
+        up_to = pd.to_datetime('today')
+    else:
+        assert (type(up_to) is pd.Timestamp),  "up_to must be a Timestamp, eg using `pd.to_datetime()`"
+    
+    tablebuild = pd.read_sql(f"""
+        select b.BuildDesc as dataset, max(b.BuildDate) as latest_build from BuildInfo as b cross join LatestBuildTime as l
+        where b.BuildDate <= l.DtLatestBuild and b.BuildDate <= convert(date, '{up_to.strftime('%Y-%m-%d %H:%M:%S')}')
+        group by b.BuildDesc
+    """, cnxn)
+
+    return(tablebuild)
+
+
+
+## function that takes event times (=times, a series) and a censor indicator (=indicators, a series taking values 1=event, 0=censor)
+## and produces a kaplan meier estimates in a dataframe
+def KMestimate(times, indicators):   
+
+    times = np.array(times)
+    indicators = np.array(indicators)
+    sortinds = times.argsort()
+    times = times[sortinds]
+    indicators = indicators[sortinds]
+
+    min_time = 0
+    max_time = times.max()
+    atrisk0 = len(times)
+
+    unq_times, counts = np.unique(times, return_counts=True)
+    event_times, event_counts = np.unique(times[indicators==1], return_counts=True)
+    censor_times, censor_counts = np.unique(times[indicators==0], return_counts=True)
+    
+    cml_counts = counts.cumsum()
+    atrisk = (atrisk0-cml_counts) + counts
+
+    kmdata = pd.DataFrame({
+        'times': unq_times, 
+        'atrisk': atrisk
+    }).merge(
+        pd.DataFrame({
+            'times': event_times, 
+            'died': event_counts
+        }), on="times", how='left'
+    ).merge(
+        pd.DataFrame({
+            'times': censor_times, 
+            'censored': censor_counts
+        }), on="times", how='left'
+    )
+
+    kmdata[['died','censored']] = kmdata[['died','censored']].fillna(0)
+    
+    
+    kmdata['kmestimate'] = 1
+    for i in kmdata.index:
+        if i==0:
+            kmdata.loc[i, 'kmestimate'] = 1 * (kmdata.loc[i, 'atrisk'] - kmdata.loc[i, 'died'])/kmdata.loc[i, 'atrisk']
+        else:
+            kmdata.loc[i, 'kmestimate'] = kmdata.loc[i-1, 'kmestimate'] * (kmdata.loc[i, 'atrisk'] - kmdata.loc[i, 'died'])/kmdata.loc[i, 'atrisk']
+
+    return kmdata
+
+
+    
+
+def eventcountseries(event_dates, date_range, rule='D', popadjust=False):
+    # to calculate the daily count for events recorded in a series
+    # where event_dates is a series
+    # set popadjust = 1000, say, to report counts per 1000 population
+    
+    pop = event_dates.size
+    
+    counts = event_dates.value_counts().reindex(date_range.index, fill_value=0)
+    
+    
+    if rule != "D":
+        counts = counts.resample(rule).sum()
+    
+    if popadjust is not False:
+        pop = event_dates.size
+        poppern= pop/popadjust
+        counts = counts.transform(lambda x: x/poppern)
+    
+    return(counts)
+
+
+
+
+
+
+
 
 # +
 # dummy data
@@ -116,7 +244,7 @@ with closing_connection(server, database, username, password) as cnxn:
     DBbuild = pd.read_sql("""select DtLatestBuild as DBbuild from LatestBuildTime""", cnxn)
     tablebuild = DBbuildtimes(up_to=cohort_run_date.strftime('%Y-%m-%d %H:%M:%S'))
 
-S1build = tablebuild['']
+S1build = tablebuild[tablebuild.dataset=="S1",'latest_build']
 #cohort_run_date.strftime('%Y-%m-%d')
 #cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
 # -
@@ -360,6 +488,8 @@ def plotstyle(axesrow, axescol, title):
     axs[axesrow,axescol].set_ylabel('Count per week')
     axs[axesrow,axescol].spines["left"].set_visible(False)
     axs[axesrow,axescol].spines["right"].set_visible(False)
+    axs[axesrow,axescol].spines["top"].set_visible(False)
+    axs[axesrow, axescol].xaxis.set_tick_params(labelbottom=True)
     axs[axesrow,axescol].legend()
     axs[axesrow,axescol].set_title(title, loc='left', y=1)
     
@@ -373,8 +503,7 @@ plotstyle(0,0, f"""
     Primary Care Probable COVID-19\n
     Clinical code, N= {codecounts_total["probable_covid"]}
     Positive test, N= {codecounts_total["probable_covid_pos_test"]}
-    Sequelae code, N= {codecounts_total["probable_covid_sequelae"]}
-""")
+    Sequelae code, N= {codecounts_total["probable_covid_sequelae"]}""")
 
    
     
@@ -385,15 +514,13 @@ plotstyle(0,1, f"""
     Primary Care Suspected COVID-19\n
     Clinical code, N= {codecounts_total["suspected_covid"]}
     Tested, N= {codecounts_total["suspected_covid_had_test"]}
-    Isolated, N= {codecounts_total["suspected_covid_isolation"]}
-""")
+    Isolated, N= {codecounts_total["suspected_covid_isolation"]}""")
 
 
 axs[0,2].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], color='blue', marker='o', markersize=6, label='Clinical code for advice to isolate')
 plotstyle(0,2, f"""
     Primary Care Suspected COVID-19\n
-    Advice given, N= {codecounts_total["suspected_covid_advice"]}
-    
+    Advice given, N= {codecounts_total["suspected_covid_advice"]}    
     
 """)
 
@@ -401,9 +528,7 @@ plotstyle(0,2, f"""
 axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], color='blue', marker='o', markersize=6, label='SGSS positive test')
 plotstyle(1,0, f"""
     SGSS tests \n
-    Positive test, N= {codecounts_total["sgss_positive_test"]}
-    
-    
+    Positive test, N= {codecounts_total["sgss_positive_test"]}    
 """)
 
 
@@ -412,8 +537,6 @@ axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], color=
 plotstyle(1,1, f"""
     Primary Care antigen negative \n
     Clinical code, N= {codecounts_total["antigen_negative"]}
-
-
 """)
 
 axs[1,2].plot(codecounts_week.index, codecounts_week["comb_suspected_covid"], color='blue', marker='o', markersize=6, label='Clinical code for suspected, had test, or isolated')
@@ -421,13 +544,9 @@ axs[1,2].plot(codecounts_week.index, codecounts_week["comb_probable_covid"], col
 plotstyle(1,2, f"""
     Combined codes: \n
     All suspected, N= {codecounts_total["comb_suspected_covid"]}
-    All probable, N= {codecounts_total["comb_probable_covid"]}
+    All probable, N= {codecounts_total["comb_probable_covid"]}""")
 
-""")
-
-
-plt.tight_layout()
-#fig.suptitle("test title",fontsize=16, y=1)
+plt.subplots_adjust(hspace=0.8, wspace=0.3)
 plt.show()
 # -
 

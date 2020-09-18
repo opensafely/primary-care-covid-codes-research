@@ -26,23 +26,21 @@ def closing_connection(server, database, username, password):
         cnxn.close()
 
 
-#cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.csv"), unit='s')
+   
 def DBbuildtimes(up_to=None):
 
-    # returns a dataframe containing the latest build time for the entire OS DB and the S1 table 
+    # returns a dataframe containing the latest build time for the OS DB tables
     # if up_to is specified, it takes the most recent build before that date
     
     if up_to is None:
         up_to = pd.to_datetime('today')
     else:
         assert (type(up_to) is pd.Timestamp),  "up_to must be a Timestamp, eg using `pd.to_datetime()`"
-
+    
     tablebuild = pd.read_sql(f"""
-      select 
-       max(BuildDate) as S1_build_date from BuildInfo
-      where 
-          BuildDesc = 'S1' and 
-         BuildDate <= convert(date, '{up_to.strftime('%Y-%m-%d %H:%M:%S')}')
+        select b.BuildDesc as dataset, max(b.BuildDate) as latest_build from BuildInfo as b cross join LatestBuildTime as l
+        where b.BuildDate <= l.DtLatestBuild and b.BuildDate <= convert(date, '{up_to.strftime('%Y-%m-%d %H:%M:%S')}')
+        group by b.BuildDesc
     """, cnxn)
 
     return(tablebuild)
