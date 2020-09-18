@@ -4,6 +4,7 @@ from cohortextractor import (
     codelist_from_csv,
     codelist,
     filter_codes_by_category,
+    combine_codelists
 )
 
 ## CODE LISTS
@@ -15,7 +16,8 @@ from codelists import *
 # Defines both the study population and points to the important covariates
 
 
-from_date = "2020-02-01"
+start_date = "2020-02-01"
+end_date = "2020-09-01"
 
 study = StudyDefinition(
     default_expectations={
@@ -108,11 +110,11 @@ study = StudyDefinition(
     # cat_antigen_negative = patients.with_these_clinical_events(
     #     codes_antigen_negative,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     #find_first_match_in_period=True,
     #     #date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         #"date": {"earliest": "2020-03-01"},
+    #         #"date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -120,11 +122,11 @@ study = StudyDefinition(
     # cat_exposure_to_disease=patients.with_these_clinical_events(
     #     codes_exposure_to_disease,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     #find_first_match_in_period=True,
     #     #date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         #"date": {"earliest": "2020-03-01"},
+    #         #"date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -132,11 +134,11 @@ study = StudyDefinition(
     # cat_historic_covid=patients.with_these_clinical_events(
     #     codes_historic_covid,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -144,11 +146,11 @@ study = StudyDefinition(
     # cat_potential_historic_covid=patients.with_these_clinical_events(
     #     codes_potential_historic_covid,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -156,11 +158,11 @@ study = StudyDefinition(
     # cat_probable_covid=patients.with_these_clinical_events(
     #     codes_probable_covid,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -168,11 +170,11 @@ study = StudyDefinition(
     # cat_probable_covid_pos_test=patients.with_these_clinical_events(
     #     codes_probable_covid_pos_test,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -180,11 +182,11 @@ study = StudyDefinition(
     # cat_probable_covid_sequelae=patients.with_these_clinical_events(
     #     codes_probable_covid_sequelae,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -192,11 +194,11 @@ study = StudyDefinition(
     # cat_suspected_covid_advice=patients.with_these_clinical_events(
     #     codes_suspected_covid_advice,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -204,11 +206,11 @@ study = StudyDefinition(
     # cat_suspected_covid_had_test=patients.with_these_clinical_events(
     #     codes_suspected_covid_had_test,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -216,11 +218,11 @@ study = StudyDefinition(
     # cat_suspected_covid_isolation=patients.with_these_clinical_events(
     #     codes_suspected_covid_isolation,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -228,11 +230,11 @@ study = StudyDefinition(
     # cat_suspected_covid_nonspecific=patients.with_these_clinical_events(
     #     codes_suspected_covid_nonspecific,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -240,11 +242,11 @@ study = StudyDefinition(
     # cat_suspected_covid=patients.with_these_clinical_events(
     #     codes_suspected_covid,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -252,11 +254,11 @@ study = StudyDefinition(
     # cat_covid_unrelated_to_case_status=patients.with_these_clinical_events(
     #     codes_covid_unrelated_to_case_status,
     #     returning="category",
-    #     on_or_after=from_date,
+    #     between=[start_date, end_date],
     #     # find_first_match_in_period=True,
     #     # date_format="YYYY-MM-DD",
     #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
+    #         # "date": {"earliest": start_date},
     #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
     #     },
     # ),
@@ -269,145 +271,178 @@ study = StudyDefinition(
     date_antigen_negative=patients.with_these_clinical_events(
         codes_antigen_negative,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_exposure_to_disease=patients.with_these_clinical_events(
         codes_exposure_to_disease,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_historic_covid=patients.with_these_clinical_events(
         codes_historic_covid,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_potential_historic_covid=patients.with_these_clinical_events(
         codes_potential_historic_covid,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_probable_covid=patients.with_these_clinical_events(
         codes_probable_covid,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_probable_covid_pos_test=patients.with_these_clinical_events(
         codes_probable_covid_pos_test,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_probable_covid_sequelae=patients.with_these_clinical_events(
         codes_probable_covid_sequelae,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_suspected_covid_advice=patients.with_these_clinical_events(
         codes_suspected_covid_advice,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_suspected_covid_had_test=patients.with_these_clinical_events(
         codes_suspected_covid_had_test,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_suspected_covid_isolation=patients.with_these_clinical_events(
         codes_suspected_covid_isolation,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_suspected_covid_nonspecific=patients.with_these_clinical_events(
         codes_suspected_covid_nonspecific,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_suspected_covid=patients.with_these_clinical_events(
         codes_suspected_covid,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
 
     date_covid_unrelated_to_case_status=patients.with_these_clinical_events(
         codes_covid_unrelated_to_case_status,
         returning="date",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": start_date},
         },
     ),
+
+    date_comb_suspected_covid=patients.with_these_clinical_events(
+        combine_codelists(
+            codes_suspected_covid_advice, 
+            codes_suspected_covid_had_test, 
+            codes_suspected_covid_isolation,
+            codes_suspected_covid_nonspecific,
+            codes_suspected_covid
+        ),
+        returning="date",
+        between=[start_date, end_date],
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": start_date},
+        },
+    ),
+
+    date_comb_probable_covid=patients.with_these_clinical_events(
+        combine_codelists(
+            codes_probable_covid, 
+            codes_probable_covid_pos_test, 
+            codes_probable_covid_sequelae
+        ),
+        returning="date",
+        between=[start_date, end_date],
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": start_date},
+        },
+    ),
+
 
 
     date_sgss_positive_test=patients.with_test_result_in_sgss(
@@ -416,7 +451,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": start_date}},
     ),
 
 
@@ -424,21 +459,21 @@ study = StudyDefinition(
     died_ons_covid=patients.with_these_codes_on_death_certificate(
         codes_covid_death,
         returning="binary_flag",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         match_only_underlying_cause=False,
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": start_date}},
     ),
     died_ons_covid_underlying=patients.with_these_codes_on_death_certificate(
         codes_covid_death,
         returning="binary_flag",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         match_only_underlying_cause=True,
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": start_date}},
     ),
     died_ons=patients.died_from_any_cause(
         returning="binary_flag",
-        on_or_after=from_date,
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        between=[start_date, end_date],
+        return_expectations={"date": {"earliest": start_date}},
     ),
 
     died_ons_noncovid = patients.satisfying(
@@ -458,9 +493,9 @@ study = StudyDefinition(
 
     date_died_ons=patients.died_from_any_cause(
         returning="date_of_death",
-        on_or_after=from_date,
+        between=[start_date, end_date],
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": start_date}},
     ),
 
 )

@@ -57,6 +57,7 @@ import matplotlib.ticker as ticker
 from contextlib import contextmanager
 from datetime import date
 from IPython.display import display, Markdown, HTML
+#from lib.functions import *
 
 # +
 # dummy data
@@ -76,24 +77,6 @@ password = "-"
 #cursor = cnxn.cursor()
 # -
 
-# use this to open a DB connection
-@contextmanager
-def closing_connection(server, database, username, password):
-    dsn = (
-        "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
-        + server
-        + ";DATABASE="
-        + database
-        + ";UID="
-        + username
-        + ";PWD="
-        + password
-    )
-    cnxn = pyodbc.connect(dsn)
-    try:
-        yield cnxn
-    finally:
-        cnxn.close()
 
 
 # +
@@ -112,6 +95,9 @@ date_cols = [
     "date_suspected_covid_nonspecific",
     "date_suspected_covid",
     "date_covid_unrelated_to_case_status",
+    "date_comb_suspected_covid",
+    "date_comb_probable_covid",
+    
     "date_sgss_positive_test",
     "date_died_ons"
 ]
@@ -121,27 +107,21 @@ df = pd.read_csv(
     filepath_or_buffer = '../output/input.csv',    
     parse_dates = date_cols
 )
-# -
-
-#when was the study cohort csv file last updated?
-cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.csv"), unit='s')
-#cohort_run_date.strftime('%Y-%m-%d')
-#cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
 
 # +
-# get build times from the database
-with closing_connection(server, database, username, password) as cnxn:
-    DBbuild = pd.read_sql("""select * from LatestBuildTime""", cnxn)
-    tablebuild = pd.read_sql(f"""
-       select 
-           max(BuildDate) as builddate from BuildInfo
-       where 
-           BuildDesc = 'S1' and 
-           BuildDate <= convert(date, '{cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')}')
-    """, cnxn)
+#when was the study cohort csv file last updated?
+cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.csv"), unit='s')
 
-DB_build_date = pd.to_datetime(DBbuild['DtLatestBuild'].values[0], format='%Y-%m-%d')
-S1_build_date = pd.to_datetime(tablebuild['builddate'].values[0], format='%Y-%m-%d')
+with closing_connection(server, database, username, password) as cnxn:
+    DBbuild = pd.read_sql("""select DtLatestBuild as DBbuild from LatestBuildTime""", cnxn)
+    tablebuild = DBbuildtimes(up_to=cohort_run_date.strftime('%Y-%m-%d %H:%M:%S'))
+
+S1build = tablebuild['']
+#cohort_run_date.strftime('%Y-%m-%d')
+#cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
+# -
+
+
 
 # +
 ## View dataframe 
@@ -157,12 +137,8 @@ S1_build_date = pd.to_datetime(tablebuild['builddate'].values[0], format='%Y-%m-
 
 # this only reflects the data if the study_definition was rerun recently
 
-# state start / end dates
-start_date = pd.to_datetime("2020-02-01", format='%Y-%m-%d')
-end_date = pd.to_datetime("2020-06-30", format='%Y-%m-%d')
-today = date.today()
-
 # derive start/end dates from df
+today = date.today()
 start_date_df = df[date_cols].min().min()
 end_date_df = df[date_cols].max().max()
 
@@ -172,65 +148,11 @@ df["end_date"] = end_date_df
 
 # Make a dataframe with consecutive dates
 consec_dates = pd.DataFrame(
-    index=pd.date_range(start=start_date, end=end_date, freq="D")
+    index=pd.date_range(start=start_date_df, end=end_date_df, freq="D")
 )
+# -
 
 
-# +
-# Function used to calculate the daily count for events for each series
-def eventcountseries(consec_dates, observed_dates):
-    counts = observed_dates.value_counts().reindex(consec_dates.index, fill_value=0)
-    return(counts)
-
-
-
-## function that takes event times (=times, a series) and a censor indicator (=indicators, a series taking values 1=event, 0=censor)
-## and produces a kaplan meier estimates in a dataframe
-def KMestimate(times, indicators):   
-
-    times = np.array(times)
-    indicators = np.array(indicators)
-    sortinds = times.argsort()
-    times = times[sortinds]
-    indicators = indicators[sortinds]
-
-    min_time = 0
-    max_time = times.max()
-    atrisk0 = len(times)
-
-    unq_times, counts = np.unique(times, return_counts=True)
-    event_times, event_counts = np.unique(times[indicators==1], return_counts=True)
-    censor_times, censor_counts = np.unique(times[indicators==0], return_counts=True)
-    
-    cml_counts = counts.cumsum()
-    atrisk = (atrisk0-cml_counts) + counts
-
-    kmdata = pd.DataFrame({
-        'times': unq_times, 
-        'atrisk': atrisk
-    }).merge(
-        pd.DataFrame({
-            'times': event_times, 
-            'died': event_counts
-        }), on="times", how='left'
-    ).merge(
-        pd.DataFrame({
-            'times': censor_times, 
-            'censored': censor_counts
-        }), on="times", how='left'
-    )
-
-    kmdata[['died','censored']] = kmdata[['died','censored']].fillna(0)
-    
-    
-    kmdata['kmestimate'] = 1
-    for i in kmdata.index:
-        if i==0:
-            kmdata.loc[i, 'kmestimate'] = 1 * (kmdata.loc[i, 'atrisk'] - kmdata.loc[i, 'died'])/kmdata.loc[i, 'atrisk']
-        else:
-            kmdata.loc[i, 'kmestimate'] = kmdata.loc[i-1, 'kmestimate'] * (kmdata.loc[i, 'atrisk'] - kmdata.loc[i, 'died'])/kmdata.loc[i, 'atrisk']
-
-    return kmdata
 
 # +
 # choose only date variables
@@ -238,7 +160,7 @@ activity_dates = df.filter(items=date_cols)
 activity_dates.columns = activity_dates.columns.str.replace("date_", "")
 
 # count code activity per day
-codecounts_day = activity_dates.apply(lambda x: eventcountseries(consec_dates=consec_dates, observed_dates=x))
+codecounts_day = activity_dates.apply(lambda x: eventcountseries(event_dates=x, date_range=consec_dates))
 
 #derive count activity per week
 codecounts_week = codecounts_day.resample('W').sum()
@@ -430,88 +352,78 @@ in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths
 # +
 
 def plotstyle(axesrow, axescol, title):
-    axs[0,0].set_ylabel('Count per week')
-    axs[0,0].xaxis.set_tick_params(labelrotation=70)
-    #axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-    axs[0,0].grid(axis='y')
-    axs[0,0].legend()
-    axs[0,0].set_title(title, loc='left', y=1)
+    axs[axesrow,axescol].set_ylabel('Count per week')
+    axs[axesrow,axescol].xaxis.set_tick_params(labelrotation=70)
+    #axs[axesrow,axescol].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
+    axs[axesrow,axescol].xaxis.set_tick_params(labelrotation=70)
+    axs[axesrow,axescol].grid(axis='y')
+    axs[axesrow,axescol].set_ylabel('Count per week')
+    axs[axesrow,axescol].spines["left"].set_visible(False)
+    axs[axesrow,axescol].spines["right"].set_visible(False)
+    axs[axesrow,axescol].legend()
+    axs[axesrow,axescol].set_title(title, loc='left', y=1)
     
-
 
 fig, axs = plt.subplots(2, 3, figsize=(15,12), sharey=True,  sharex=True)
 
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], color='blue', marker='o', label='Clinical code for probable case')
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"], color='red', marker='o', label='Clinical code for positive test')
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], color='green', marker='o', label='Clinical code for sequelae')
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], color='blue', marker='o', markersize=6, label='Clinical code for probable case')
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"], color='red', marker='o', markersize=6, label='Clinical code for positive test')
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], color='green', marker='o', markersize=6, label='Clinical code for sequelae')
 plotstyle(0,0, f"""
     Primary Care Probable COVID-19\n
     Clinical code, N= {codecounts_total["probable_covid"]}
     Positive test, N= {codecounts_total["probable_covid_pos_test"]}
     Sequelae code, N= {codecounts_total["probable_covid_sequelae"]}
-""");
+""")
 
    
     
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], color='blue', marker='o', label='Clinical code for suspect')
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_had_test"], color='red', marker='o', label='Clinical code for had test')
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_isolation"], color='green', marker='o', label='Clinical code for isolation')
-axs[0,1].set_ylabel('Count per week')
-axs[0,1].xaxis.set_tick_params(labelrotation=70)
-#axs[0,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,1].grid(axis='y')
-axs[0,1].set_title(f"""
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], color='blue', marker='o', markersize=6, label='Clinical code for suspect')
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_had_test"], color='red', marker='o', markersize=6, label='Clinical code for had test')
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_isolation"], color='green', marker='o', markersize=6, label='Clinical code for isolation')
+plotstyle(0,1, f"""
     Primary Care Suspected COVID-19\n
     Clinical code, N= {codecounts_total["suspected_covid"]}
     Tested, N= {codecounts_total["suspected_covid_had_test"]}
     Isolated, N= {codecounts_total["suspected_covid_isolation"]}
-""", loc='left', y=1)
-axs[0,1].legend()
+""")
 
 
-axs[0,2].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], color='blue', marker='o', label='Clinical code for advice to isolate')
-axs[0,2].set_ylabel('Count per week')
-axs[0,2].xaxis.set_tick_params(labelrotation=70)
-#axs[0,2].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,2].grid(axis='y')
-axs[0,2].set_title(f"""
+axs[0,2].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], color='blue', marker='o', markersize=6, label='Clinical code for advice to isolate')
+plotstyle(0,2, f"""
     Primary Care Suspected COVID-19\n
     Advice given, N= {codecounts_total["suspected_covid_advice"]}
     
     
-""", loc='left', y=1)
-axs[0,2].legend()
+""")
 
 
-
-
-axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], color='blue', marker='o', label='SGSS positive test')
-axs[1,0].set_ylabel('Count per week')
-axs[1,0].xaxis.set_tick_params(labelrotation=70)
-#axs[1,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[1,0].grid(axis='y')
-axs[1,0].set_title(f"""
+axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], color='blue', marker='o', markersize=6, label='SGSS positive test')
+plotstyle(1,0, f"""
     SGSS tests \n
     Positive test, N= {codecounts_total["sgss_positive_test"]}
     
     
-""", loc='left', y=1)
-axs[1,0].legend()
+""")
 
 
-axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], color='blue', marker='o', label='Clinical code for negative antigen test')
-axs[1,1].set_ylabel('Count per week')
-axs[1,1].xaxis.set_tick_params(labelrotation=70)
-#axs[1,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[1,1].grid(axis='y')
-axs[1,1].set_title(f"""
+
+axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], color='blue', marker='o', markersize=6, label='Clinical code for negative antigen test')
+plotstyle(1,1, f"""
     Primary Care antigen negative \n
     Clinical code, N= {codecounts_total["antigen_negative"]}
 
 
-""", loc='left', y=1)
-axs[1,1].legend()
+""")
 
+axs[1,2].plot(codecounts_week.index, codecounts_week["comb_suspected_covid"], color='blue', marker='o', markersize=6, label='Clinical code for suspected, had test, or isolated')
+axs[1,2].plot(codecounts_week.index, codecounts_week["comb_probable_covid"], color='red', marker='o', markersize=6, label='Clinical code for probable, positive test, or sequelae')
+plotstyle(1,2, f"""
+    Combined codes: \n
+    All suspected, N= {codecounts_total["comb_suspected_covid"]}
+    All probable, N= {codecounts_total["comb_probable_covid"]}
+
+""")
 
 
 plt.tight_layout()
