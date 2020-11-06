@@ -55,7 +55,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from contextlib import contextmanager
-from datetime import date
+from datetime import date, timedelta
 from IPython.display import display, Markdown, HTML
 
 import sys
@@ -109,13 +109,16 @@ with closing_connection(dbconn) as cnxn:
 
 DB_build_date = pd.to_datetime(DBbuild['DtLatestBuild'].values[0], format='%Y-%m-%d')
 S1_build_date = pd.to_datetime(tablebuild['builddate'].values[0], format='%Y-%m-%d')
+# -
+
+
 
 # +
 # this only reflects the data if the study_definition was rerun recently
 
 # state start / end dates
 start_date = pd.to_datetime("2020-02-01", format='%Y-%m-%d')
-end_date = pd.to_datetime(S1_build_date, format='%Y-%m-%d')
+end_date = S1_build_date - timedelta(S1_build_date.weekday()+8) # a week last sunday
 today = date.today()
 
 #derive start/end dates
