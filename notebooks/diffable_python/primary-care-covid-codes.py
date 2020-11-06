@@ -333,26 +333,24 @@ def plotstyle(axesrow, axescol, title):
     axs[axesrow,axescol].spines["top"].set_visible(False)
     
 
-fig, axs = plt.subplots(2, 3, figsize=(15,12), sharey=True,  sharex=True)
+fig, axs = plt.subplots(2, 2, figsize=(15,12), sharey=True,  sharex=True)
 
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], marker='o', label=f"""Clinical code for probable case, N= {codecounts_total["probable_covid"]}""")
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"],  marker='o', label=f"""Clinical code for positive test, N= {codecounts_total["probable_covid_pos_test"]}""")
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], marker='o', label=f"""Clinical code for sequelae, N= {codecounts_total["probable_covid_sequelae"]}""")
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], marker='o', markersize=2, label=f"""Clinical code for probable case, N={codecounts_total["probable_covid"]}""")
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"],  marker='o', markersize=2, label=f"""Clinical code for positive test, N={codecounts_total["probable_covid_pos_test"]}""")
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], marker='o', markersize=2, label=f"""Clinical code for sequelae, N={codecounts_total["probable_covid_sequelae"]}""")
 plotstyle(0,0, "Primary Care Probable COVID-19\n");
     
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], marker='o', label=f"""Clinical code for suspect, N= {codecounts_total["suspected_covid"]}""")
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_had_test"], marker='o', label=f"""Clinical code for had test, N= {codecounts_total["suspected_covid_had_test"]}""")
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_isolation"], marker='o', label=f"""Clinical code for isolation, N= {codecounts_total["suspected_covid_isolation"]}""")
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], marker='o', markersize=2, label=f"""Clinical code for suspect, N={codecounts_total["suspected_covid"]}""")
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_had_test"], marker='o', markersize=2, label=f"""Clinical code for had test, N={codecounts_total["suspected_covid_had_test"]}""")
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_isolation"], marker='o', markersize=2, label=f"""Clinical code for isolation, N={codecounts_total["suspected_covid_isolation"]}""")
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], marker='o', markersize=2, label=f"""Clinical code for advice to isolate, N={codecounts_total["suspected_covid_advice"]}""")
 plotstyle(0,1, "Primary Care Suspected COVID-19\n");
 
-axs[0,2].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], marker='o', label=f"""Clinical code for advice to isolate, N= {codecounts_total["suspected_covid_advice"]}""")
-plotstyle(0,2, "Primary Care Suspected COVID-19\n");
 
-
-axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], marker='o', label=f"""SGSS positive test, N= {codecounts_total["sgss_positive_test"]}""")
+axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], marker='o', markersize=2, label=f"""SGSS positive test, N={codecounts_total["sgss_positive_test"]}""")
 plotstyle(1,0, "SGSS tests\n");
 
-axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], marker='o', label=f"""Clinical code for negative antigen test, N= {codecounts_total["antigen_negative"]}""")
+axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], marker='o', markersize=2, label=f"""Clinical code for negative antigen test, N={codecounts_total["antigen_negative"]}""")
 axs[1,1].legend()
 plotstyle(1,1, "Primary Care antigen negative\n");
 
@@ -387,49 +385,36 @@ df_pvetestSGSS = df[~np.isnan(df['date_sgss_positive_test'])]
 df_pvetestPC = df[~np.isnan(df['date_probable_covid_pos_test'])]
 
 
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,5), sharey=True)
+
+# SGSS pos test to death
 kmdata = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death'])
 kmdata_covid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_noncovid'])
 
-fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,5), sharey=True)
-
-# SGSS pos test to death
-
-
-
-#axes[0].step(kmdata['times'], 1-kmdata['kmestimate'], label='all deaths') 
 axes[0].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[0].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
-axes[0].set_xlabel('time from positive test to death')
+axes[0].set_xlabel('Days')
 axes[0].set_ylabel('1 - KM survival estimate')
-axes[0].set_title("Positive test date identified from SGSS data\n")
+axes[0].set_title("as identified from SGSS data\n")
 axes[0].legend()
 axes[0].set_xlim(0, 80)
-#plt.show()
 
 # PC pos test to death
-
 kmdata = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death'])
 kmdata_covid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_noncovid'])
 
-#axes[1].step(kmdata['times'], 1-kmdata['kmestimate'], label='all deaths') 
 axes[1].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[1].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
-axes[1].set_xlabel('time from positive test to death')
+axes[1].set_xlabel('Days')
 axes[1].set_ylabel('1 - KM survival estimate')
-axes[1].set_title("Positive test date identified from primary care data\n")
+axes[1].set_title("as identified from primary care data\n")
 axes[1].set_xlim(0, 80)
-#plt.show()
 
-fig.suptitle("Days\n", y=1, fontsize=14)
+fig.suptitle("Days from positive test to death", y=1.05, fontsize=14)
 fig.tight_layout()
-#kmdata
-
-# +
-
 # -
-
 
 display(Markdown(f"""
 ## Technical details
