@@ -18,7 +18,7 @@
 # + active=""
 # <!--
 # <div class="output_html rendered_html output_subarea output_execute_result">
-# FAO nerds: click the button below to show the underlying Python code that this notebook is based on.
+# FAO nerds: click the button below to show the underlying Python code for this notebook.
 # </div>
 # -->
 #     
@@ -46,8 +46,8 @@
 #   <input type="submit" id="toggleButton" value="Show code">
 # </form>
 #
-# -
 
+# +
 import pyodbc
 import os
 import pandas as pd
@@ -58,43 +58,12 @@ from contextlib import contextmanager
 from datetime import date
 from IPython.display import display, Markdown, HTML
 
-# +
-# dummy data
-#server = 'covid.ebmdatalab.net,1433'
-#database = 'OPENCoronaExport' 
-#username = 'SA'
-#password = 'ahsjdkaJAMSHDA123[' 
-#cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
-#cursor = cnxn.cursor()
+import sys
+sys.path.append('../lib/')
+from functions import *
 
-## OS DB
-server = '192.168.201.1'
-database = 'OpenCorona'
-username = "-"
-password = "-"
-#cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+password)
-#cursor = cnxn.cursor()
-# -
-
-# use this to open a DB connection
-@contextmanager
-def closing_connection(server, database, username, password):
-    dsn = (
-        "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
-        + server
-        + ";DATABASE="
-        + database
-        + ";UID="
-        + username
-        + ";PWD="
-        + password
-    )
-    cnxn = pyodbc.connect(dsn)
-    try:
-        yield cnxn
-    finally:
-        cnxn.close()
-
+# get server credentials from environ.txt
+dbconn = os.environ.get('DBCONN', None).strip('"')
 
 # +
 #specify date columns
@@ -125,12 +94,10 @@ df = pd.read_csv(
 
 #when was the study cohort csv file last updated?
 cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.csv"), unit='s')
-#cohort_run_date.strftime('%Y-%m-%d')
-#cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')
 
 # +
 # get build times from the database
-with closing_connection(server, database, username, password) as cnxn:
+with closing_connection(dbconn) as cnxn:
     DBbuild = pd.read_sql("""select * from LatestBuildTime""", cnxn)
     tablebuild = pd.read_sql(f"""
        select 
@@ -144,93 +111,21 @@ DB_build_date = pd.to_datetime(DBbuild['DtLatestBuild'].values[0], format='%Y-%m
 S1_build_date = pd.to_datetime(tablebuild['builddate'].values[0], format='%Y-%m-%d')
 
 # +
-## View dataframe 
-#print(df)
-
-## check types
-#print(df.dtypes)
-
-## check earliest and latest dates
-#print(df[date_cols].agg(['min', 'max']).transpose())
-
-# get database build date
-
 # this only reflects the data if the study_definition was rerun recently
 
 # state start / end dates
 start_date = pd.to_datetime("2020-02-01", format='%Y-%m-%d')
-end_date = pd.to_datetime("2020-06-30", format='%Y-%m-%d')
+end_date = pd.to_datetime(S1_build_date, format='%Y-%m-%d')
 today = date.today()
 
-# derive start/end dates from df
-start_date_df = df[date_cols].min().min()
-end_date_df = df[date_cols].max().max()
-
-#put in the dataframe
-df["start_date"] = start_date_df
-df["end_date"] = end_date_df
+#derive start/end dates
+df["start_date"] = df[date_cols].min().min()
+df["end_date"] = df[date_cols].max().max()
 
 # Make a dataframe with consecutive dates
 consec_dates = pd.DataFrame(
     index=pd.date_range(start=start_date, end=end_date, freq="D")
 )
-
-
-# +
-# Function used to calculate the daily count for events for each series
-def eventcountseries(consec_dates, observed_dates):
-    counts = observed_dates.value_counts().reindex(consec_dates.index, fill_value=0)
-    return(counts)
-
-
-
-## function that takes event times (=times, a series) and a censor indicator (=indicators, a series taking values 1=event, 0=censor)
-## and produces a kaplan meier estimates in a dataframe
-def KMestimate(times, indicators):   
-
-    times = np.array(times)
-    indicators = np.array(indicators)
-    sortinds = times.argsort()
-    times = times[sortinds]
-    indicators = indicators[sortinds]
-
-    min_time = 0
-    max_time = times.max()
-    atrisk0 = len(times)
-
-    unq_times, counts = np.unique(times, return_counts=True)
-    event_times, event_counts = np.unique(times[indicators==1], return_counts=True)
-    censor_times, censor_counts = np.unique(times[indicators==0], return_counts=True)
-    
-    cml_counts = counts.cumsum()
-    atrisk = (atrisk0-cml_counts) + counts
-
-    kmdata = pd.DataFrame({
-        'times': unq_times, 
-        'atrisk': atrisk
-    }).merge(
-        pd.DataFrame({
-            'times': event_times, 
-            'died': event_counts
-        }), on="times", how='left'
-    ).merge(
-        pd.DataFrame({
-            'times': censor_times, 
-            'censored': censor_counts
-        }), on="times", how='left'
-    )
-
-    kmdata[['died','censored']] = kmdata[['died','censored']].fillna(0)
-    
-    
-    kmdata['kmestimate'] = 1
-    for i in kmdata.index:
-        if i==0:
-            kmdata.loc[i, 'kmestimate'] = 1 * (kmdata.loc[i, 'atrisk'] - kmdata.loc[i, 'died'])/kmdata.loc[i, 'atrisk']
-        else:
-            kmdata.loc[i, 'kmestimate'] = kmdata.loc[i-1, 'kmestimate'] * (kmdata.loc[i, 'atrisk'] - kmdata.loc[i, 'died'])/kmdata.loc[i, 'atrisk']
-
-    return kmdata
 
 # +
 # choose only date variables
@@ -238,7 +133,7 @@ activity_dates = df.filter(items=date_cols)
 activity_dates.columns = activity_dates.columns.str.replace("date_", "")
 
 # count code activity per day
-codecounts_day = activity_dates.apply(lambda x: eventcountseries(consec_dates=consec_dates, observed_dates=x))
+codecounts_day = activity_dates.apply(lambda x: eventcountseries(event_dates=x, date_range = consec_dates))
 
 #derive count activity per week
 codecounts_week = codecounts_day.resample('W').sum()
@@ -408,13 +303,10 @@ tabledata[["Codelist", "Description", "Count"]].style.set_properties(subset=["Co
 
 display(Markdown(f"""
 "Probable" and "suspected" sub-categories are explored further here. 
-Plots of frequency of codes (Figure 1) showed that while the frequency of use of 
-"probable case: clinical code" (n={codecounts_total["probable_covid"]}) was similar to "probable case: positive test" (n={codecounts_total["probable_covid_pos_test"]}) over time, 
+Plots of frequency of codes (Figure 1) showed that while the frequency of use of "probable case: clinical code" (n={codecounts_total["probable_covid"]}) was similar to "probable case: positive test" (n={codecounts_total["probable_covid_pos_test"]}) over time, 
 "probable case: sequelae" codes were used much less frequently over the whole time period (n={codecounts_total["probable_covid_sequelae"]}). 
-Suspected case sub-categories were used much more frequently than 
-"probable case: positive test" - suspected case: "advice given" (n={codecounts_total["suspected_covid_advice"]}),
-"isolation code" (n={codecounts_total["suspected_covid_isolation"]})
-and "suspected codes" (n={codecounts_total["suspected_covid"]}) (Figure 1). 
+Suspected case sub-categories were used much more frequently than "probable case: positive test" - suspected case: "advice given" (n={codecounts_total["suspected_covid_advice"]}),
+"isolation code" (n={codecounts_total["suspected_covid_isolation"]}) and "suspected codes" (n={codecounts_total["suspected_covid"]}) (Figure 1). 
 Plots of causes of death after each code showed marked differences in the proportion of death due to COVID-19 compared to deaths due to other causes for all probable case sub-categories; 
 in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths following codes in the "suspected" COVID-19 case sub-categories (Figure 2).
 """))
@@ -430,88 +322,39 @@ in contrast, COVID-19 deaths were not substantially higher than non-COVID deaths
 # +
 
 def plotstyle(axesrow, axescol, title):
-    axs[0,0].set_ylabel('Count per week')
-    axs[0,0].xaxis.set_tick_params(labelrotation=70)
+    axs[axesrow,axescol].set_ylabel('Count per week')
+    axs[axesrow,axescol].xaxis.set_tick_params(labelrotation=70)
     #axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-    axs[0,0].grid(axis='y')
-    axs[0,0].legend()
-    axs[0,0].set_title(title, loc='left', y=1)
+    axs[axesrow,axescol].grid(axis='y')
+    axs[axesrow,axescol].legend()
+    axs[axesrow,axescol].set_title(title, loc='left', y=1)
+    axs[axesrow,axescol].spines["left"].set_visible(False)
+    axs[axesrow,axescol].spines["right"].set_visible(False)
+    axs[axesrow,axescol].spines["top"].set_visible(False)
     
-
 
 fig, axs = plt.subplots(2, 3, figsize=(15,12), sharey=True,  sharex=True)
 
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], color='blue', marker='o', label='Clinical code for probable case')
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"], color='red', marker='o', label='Clinical code for positive test')
-axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], color='green', marker='o', label='Clinical code for sequelae')
-plotstyle(0,0, f"""
-    Primary Care Probable COVID-19\n
-    Clinical code, N= {codecounts_total["probable_covid"]}
-    Positive test, N= {codecounts_total["probable_covid_pos_test"]}
-    Sequelae code, N= {codecounts_total["probable_covid_sequelae"]}
-""");
-
-   
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid"], marker='o', label=f"""Clinical code for probable case, N= {codecounts_total["probable_covid"]}""")
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_pos_test"],  marker='o', label=f"""Clinical code for positive test, N= {codecounts_total["probable_covid_pos_test"]}""")
+axs[0,0].plot(codecounts_week.index, codecounts_week["probable_covid_sequelae"], marker='o', label=f"""Clinical code for sequelae, N= {codecounts_total["probable_covid_sequelae"]}""")
+plotstyle(0,0, "Primary Care Probable COVID-19\n");
     
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], color='blue', marker='o', label='Clinical code for suspect')
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_had_test"], color='red', marker='o', label='Clinical code for had test')
-axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_isolation"], color='green', marker='o', label='Clinical code for isolation')
-axs[0,1].set_ylabel('Count per week')
-axs[0,1].xaxis.set_tick_params(labelrotation=70)
-#axs[0,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,1].grid(axis='y')
-axs[0,1].set_title(f"""
-    Primary Care Suspected COVID-19\n
-    Clinical code, N= {codecounts_total["suspected_covid"]}
-    Tested, N= {codecounts_total["suspected_covid_had_test"]}
-    Isolated, N= {codecounts_total["suspected_covid_isolation"]}
-""", loc='left', y=1)
-axs[0,1].legend()
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid"], marker='o', label=f"""Clinical code for suspect, N= {codecounts_total["suspected_covid"]}""")
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_had_test"], marker='o', label=f"""Clinical code for had test, N= {codecounts_total["suspected_covid_had_test"]}""")
+axs[0,1].plot(codecounts_week.index, codecounts_week["suspected_covid_isolation"], marker='o', label=f"""Clinical code for isolation, N= {codecounts_total["suspected_covid_isolation"]}""")
+plotstyle(0,1, "Primary Care Suspected COVID-19\n");
+
+axs[0,2].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], marker='o', label=f"""Clinical code for advice to isolate, N= {codecounts_total["suspected_covid_advice"]}""")
+plotstyle(0,2, "Primary Care Suspected COVID-19\n");
 
 
-axs[0,2].plot(codecounts_week.index, codecounts_week["suspected_covid_advice"], color='blue', marker='o', label='Clinical code for advice to isolate')
-axs[0,2].set_ylabel('Count per week')
-axs[0,2].xaxis.set_tick_params(labelrotation=70)
-#axs[0,2].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[0,2].grid(axis='y')
-axs[0,2].set_title(f"""
-    Primary Care Suspected COVID-19\n
-    Advice given, N= {codecounts_total["suspected_covid_advice"]}
-    
-    
-""", loc='left', y=1)
-axs[0,2].legend()
+axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], marker='o', label=f"""SGSS positive test, N= {codecounts_total["sgss_positive_test"]}""")
+plotstyle(1,0, "SGSS tests\n");
 
-
-
-
-axs[1,0].plot(codecounts_week.index, codecounts_week["sgss_positive_test"], color='blue', marker='o', label='SGSS positive test')
-axs[1,0].set_ylabel('Count per week')
-axs[1,0].xaxis.set_tick_params(labelrotation=70)
-#axs[1,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[1,0].grid(axis='y')
-axs[1,0].set_title(f"""
-    SGSS tests \n
-    Positive test, N= {codecounts_total["sgss_positive_test"]}
-    
-    
-""", loc='left', y=1)
-axs[1,0].legend()
-
-
-axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], color='blue', marker='o', label='Clinical code for negative antigen test')
-axs[1,1].set_ylabel('Count per week')
-axs[1,1].xaxis.set_tick_params(labelrotation=70)
-#axs[1,1].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
-axs[1,1].grid(axis='y')
-axs[1,1].set_title(f"""
-    Primary Care antigen negative \n
-    Clinical code, N= {codecounts_total["antigen_negative"]}
-
-
-""", loc='left', y=1)
+axs[1,1].plot(codecounts_week.index, codecounts_week["antigen_negative"], marker='o', label=f"""Clinical code for negative antigen test, N= {codecounts_total["antigen_negative"]}""")
 axs[1,1].legend()
-
+plotstyle(1,1, "Primary Care antigen negative\n");
 
 
 plt.tight_layout()
@@ -519,7 +362,7 @@ plt.tight_layout()
 plt.show()
 # -
 
-# ## Figure 2: Comparison of mortality from (1) COVID-19 or (2) other causes in the 80 days following the primary care code.
+# ## Figure 2: Comparison of mortality from COVID-19 or other causes in the 80 days following a positive test
 
 # +
 # derive time-to-event censoring info
@@ -559,7 +402,7 @@ axes[0].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid d
 axes[0].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[0].set_xlabel('time from positive test to death')
 axes[0].set_ylabel('1 - KM survival estimate')
-axes[0].set_title("Positive test date identified from SGSS data")
+axes[0].set_title("Positive test date identified from SGSS data\n")
 axes[0].legend()
 axes[0].set_xlim(0, 80)
 #plt.show()
@@ -575,11 +418,11 @@ axes[1].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid d
 axes[1].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[1].set_xlabel('time from positive test to death')
 axes[1].set_ylabel('1 - KM survival estimate')
-axes[1].set_title("Positive test date identified from primary care data")
+axes[1].set_title("Positive test date identified from primary care data\n")
 axes[1].set_xlim(0, 80)
 #plt.show()
 
-fig.suptitle("Time from first positive test until covid or non-covid death\n", y=1, fontsize=14)
+fig.suptitle("Days\n", y=1, fontsize=14)
 fig.tight_layout()
 #kmdata
 
@@ -595,9 +438,9 @@ This notebook was run on {today.strftime('%Y-%m-%d')}, based on SystmOne data as
 
 Codelist activity is reported from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}. If a clinical code appears in the primary care record on multiple dates, the earliest date is used. 
 
-This dataset is available from `/output/input.csv` in the repository. It was created using the study definition `/analysis/study_definintion.py`. 
+This dataset was created using the study definition `/analysis/study_definintion.py`. 
 
-If there are multiple events per person within the extraction period, the latest event date is extracted.
+If there are multiple events per patient within the extraction period, the earliest event date is extracted.
 
 Only patients registered at their practice continuously for one year up to 1 Feb 2020 are included.
 
