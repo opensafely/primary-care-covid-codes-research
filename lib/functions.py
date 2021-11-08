@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 
 
-# use this to open connection
+# # use this to open connection
 # @contextmanager
 # def closing_connection(dbconn): 
 #     cnxn = pyodbc.connect(dbconn)
