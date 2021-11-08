@@ -1,0 +1,15 @@
+2021-11-08T16:41:57.042458810Z 2021-11-08 16:41:57 [info     ] Generating cohort for study_definition in output [cohortextractor.cohortextractor] 
+2021-11-08T16:41:57.455060808Z 2021-11-08 16:41:57 [info     ] Successfully created cohort and covariates at output/input.csv [cohortextractor.cohortextractor] 
+
+
+state: succeeded
+docker_image_id: sha256:9eed7fbc9943273c632d28ceae08689aec3080474fb18a8bd59773f0a6b53201
+job_id: ywhraw4r5vhdve3y
+run_by_user: candrews
+created_at: 2021-11-08T16:41:39Z
+completed_at: 2021-11-08T16:41:57Z
+
+Completed successfully
+
+outputs:
+  output/input.csv  - highly_sensitive

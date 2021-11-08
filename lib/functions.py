@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import pyodbc
+# import pyodbc
 import os
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -9,13 +9,13 @@ from contextlib import contextmanager
 
 
 # use this to open connection
-@contextmanager
-def closing_connection(dbconn): 
-    cnxn = pyodbc.connect(dbconn)
-    try: 
-        yield cnxn 
-    finally: 
-        cnxn.close()
+# @contextmanager
+# def closing_connection(dbconn): 
+#     cnxn = pyodbc.connect(dbconn)
+#     try: 
+#         yield cnxn 
+#     finally: 
+#         cnxn.close()
 
 
 def DBbuildtimes(cnxn, up_to=None):
