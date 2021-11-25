@@ -22,64 +22,36 @@ def plotstyle(axesrow, axescol, title):
 
 fig, axs = plt.subplots(2, 2, figsize=(15,12), sharey=False,  sharex=True)
 
-axs[0,0].plot(
+probable = ['probable_covid', 'probable_covid_pos_test', 'probable_covid_sequelae']
+probable_lab=["probable case","positive test","sequalae"]
+for i in range(0, len(probable)): 
+    axs[0,0].plot(
     codecounts_week.index, 
-    codecounts_week["probable_covid"], 
+    codecounts_week[probable[i]], 
     marker='o', 
     markersize=2, 
-    label=f"""Code for probable case, N={codecounts_total["probable_covid"]}""",
+    label=f"""Code for {probable_lab[i]}, N={codecounts_total[probable[i]]}""",
     )
-
-axs[0,0].plot(
-    codecounts_week.index, 
-    codecounts_week["probable_covid_pos_test"],  
-    marker='o', 
-    markersize=2, 
-    label=f"""Code for positive test, N={codecounts_total["probable_covid_pos_test"]}""",
-    )
-
-axs[0,0].plot(
-    codecounts_week.index, 
-    codecounts_week["probable_covid_sequelae"], 
-    marker='o', 
-    markersize=2, 
-    label=f"""Code for sequelae, N={codecounts_total["probable_covid_sequelae"]}""",
-    )
-
 plotstyle(0,0, "Primary Care Probable COVID-19\n");
-    
-axs[0,1].plot(
-    codecounts_week.index, 
-    codecounts_week["suspected_covid"], 
-    marker='o', 
-    markersize=2, 
-    label=f"""Code for suspected, N={codecounts_total["suspected_covid"]}""",
-    )
 
-axs[0,1].plot(
-    codecounts_week.index, 
-    codecounts_week["suspected_covid_had_test"], 
-    marker='o', 
-    markersize=2, 
-    label=f"""Code for had test, N={codecounts_total["suspected_covid_had_test"]}""",
-    )
+suspected = ['suspected_covid',
+ 'suspected_covid_had_test',
+ 'suspected_covid_isolation',
+ 'suspected_covid_advice']
 
-axs[0,1].plot(
-    codecounts_week.index, 
-    codecounts_week["suspected_covid_isolation"], 
-    marker='o', 
-    markersize=2, 
-    label=f"""Code for isolation, N={codecounts_total["suspected_covid_isolation"]}""",
-    )
-
-axs[0,1].plot(
-    codecounts_week.index, 
-    codecounts_week["suspected_covid_advice"], 
-    marker='o', 
-    markersize=2, 
-    label=f"""Code for advice to isolate, N={codecounts_total["suspected_covid_advice"]}""",
-    )
-
+suspected_lab=["suspected",
+"had test",
+"isolation",
+"advice to isolate"]
+   
+for i in range(0, len(suspected)): 
+    axs[0,1].plot(
+        codecounts_week.index, 
+        codecounts_week[suspected[i]], 
+        marker='o', 
+        markersize=2, 
+        label=f"""Code for {suspected_lab[i]}, N={codecounts_total[suspected[i]]}""",
+        )
 plotstyle(0,1, "Primary Care Suspected COVID-19\n");
 
 axs[1,0].plot(
