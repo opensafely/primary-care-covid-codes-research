@@ -1,14 +1,9 @@
-import os
 import pandas as pd
-# import matplotlib.ticker as ticker
-from contextlib import contextmanager
-# from datetime import date , timedelta
-from config import start_date, end_date, today
-
-
+from config import start_date, end_date
 import sys
-sys.path.append('lib/')
-from functions import *
+from lib.functions import *
+# sys.path.append('lib/')
+# from functions import *
 
 
 #specify date columns
@@ -35,24 +30,6 @@ df = pd.read_csv(
     filepath_or_buffer = 'output/input.csv',    
     parse_dates = date_cols
 )
-
-#when was the study cohort csv file last updated?
-cohort_run_date = pd.to_datetime(os.path.getmtime("output/input.csv"), unit='s')
-
-# # get build times from the database
-# with closing_connection(dbconn) as cnxn:
-#     DBbuild = pd.read_sql("""select * from LatestBuildTime""", cnxn)
-#     tablebuild = pd.read_sql(f"""
-#        select 
-#            max(BuildDate) as builddate from BuildInfo
-#        where 
-#            BuildDesc = 'S1' and 
-#            BuildDate <= convert(date, '{cohort_run_date.strftime('%Y-%m-%d %H:%M:%S')}')
-#     """, cnxn)
-
-# DB_build_date = pd.to_datetime(DBbuild['DtLatestBuild'].values[0], format='%Y-%m-%d')
-# S1_build_date = pd.to_datetime(tablebuild['builddate'].values[0], format='%Y-%m-%d')
-
 
 # Make a dataframe with consecutive dates
 consec_dates = pd.DataFrame(
@@ -173,18 +150,6 @@ tabledata['Codelist']="<a href='"+tabledata['link']+"' target='_blank'>"+tableda
 codecounts_total.name = "Count"
 
 tabledata = tabledata.merge(codecounts_total, left_index=True, right_index=True)
-
-# easy but not ideal output
-#display(HTML(tabledata.to_html(index=False, justify='left')))
-
-# use styling instead - https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
-styles = [dict(selector="th", props=[("text-align", "left")])]
-
-# with hyperlinks
-tabledata[["Codelist", "Description", "Count"]].style.set_properties(subset=["Codelist","Description"], **{'text-align':'left', 'index':False}).set_table_styles(styles).hide_index()
-
-#without hyperlinks
-#tabledata[["Category", "Sub-category" "Description", "Count"]].style.set_properties(subset=["Category","Sub-category","Description"], **{'text-align':'left', 'index':False}).set_table_styles(styles).hide_index()
 tabledata.to_csv("output/tabledata.csv")
 
 
