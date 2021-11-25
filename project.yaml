@@ -33,3 +33,4 @@ actions:
     outputs:
       moderately_sensitive:  
         figs: output/figs.svg
+        
