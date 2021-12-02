@@ -4,6 +4,7 @@ model.log
 __pycache__
 .python-version
 output/*
+metadata/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

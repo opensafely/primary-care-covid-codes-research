@@ -1,77 +1,8 @@
 import pandas as pd
 import numpy as np
-import pyodbc
-import os
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from contextlib import contextmanager
 
 
-
-# use this to open connection
-@contextmanager
-def closing_connection(dbconn): 
-    cnxn = pyodbc.connect(dbconn)
-    try: 
-        yield cnxn 
-    finally: 
-        cnxn.close()
-
-
-def DBbuildtimes(cnxn, up_to=None):
-
-    # returns a dataframe containing the latest build time for the OS DB tables
-    # if up_to is specified, it takes the most recent build before that date
-    
-    if up_to is None:
-        up_to = pd.to_datetime('today')
-    else:
-        assert (type(up_to) is pd.Timestamp),  "up_to must be a Timestamp, eg using `pd.to_datetime()`"
-    
-    tablebuild = pd.read_sql(f"""
-        select b.BuildDesc as dataset, max(b.BuildDate) as latest_build from BuildInfo as b cross join LatestBuildTime as l
-        where b.BuildDate <= l.DtLatestBuild and b.BuildDate <= convert(date, '{up_to.strftime('%Y-%m-%d %H:%M:%S')}')
-        group by b.BuildDesc
-    """, cnxn)
-
-    return(tablebuild)
-
-   
-    
-def eventcountdf(event_dates, date_range, rule='D', popadjust=False):
-    # to calculate the daily count for events recorded in a dataframe
-    # where event_dates is a dataframe of date columns
-    # set popadjust = 1000, say, to report counts per 1000 population
-    
-    # initialise dataset
-    counts = date_range
-    
-    
-    for col in event_dates:
-
-        # Creates a series of the entry date of the index event
-        in_date = event_dates.loc[:, col]
-
-        counts = counts.join(
-            pd.DataFrame(in_date, columns=[col]).groupby(col)[col].count().to_frame()
-        )
-
-    # convert nan to zero
-    counts = counts.fillna(0)
-    
-    if rule != "D":
-        counts = counts.resample(rule).sum()
-    
-    if popadjust is not False:
-        pop = event_dates.shape[0]
-        poppern = pop/popadjust
-        counts = counts.transform(lambda x: x/poppern)
-    
-    return(counts)
-
-    
-
-
+ 
 def eventcountseries(event_dates, date_range, rule='D', popadjust=False):
     # to calculate the daily count for events recorded in a series
     # where event_dates is a series

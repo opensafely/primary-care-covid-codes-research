@@ -1,0 +1,36 @@
+version: '3.0'
+
+expectations:
+  population_size: 10000
+
+actions:
+
+  generate_cohort:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition
+    outputs:
+      highly_sensitive:
+        cohort: output/input.csv
+
+  counts:
+    run: python:latest python analysis/counts.py
+    needs: [generate_cohort]
+    outputs:
+      moderately_sensitive: 
+        tabdata: output/tabledata.csv
+        cohort_2: output/codecounts_week.csv
+        
+  freq_plots:
+    run: python:latest python analysis/freq_plot.py
+    needs: [counts]
+    outputs:
+      moderately_sensitive:  
+        plots: output/plots.svg
+#        figs: output/figs.svg
+
+  km_plots:
+    run: python:latest python analysis/km_plot.py
+    needs: [generate_cohort]
+    outputs:
+      moderately_sensitive:  
+        figs: output/figs.svg
+        
