@@ -1,8 +1,8 @@
 import pandas as pd
 
 # state start / end dates
-start_date = pd.to_datetime("2020-11-14", format='%Y-%m-%d')
-end_date = pd.to_datetime("2021-11-14", format='%Y-%m-%d')
+start_date = pd.to_datetime("2020-02-01", format='%Y-%m-%d')
+end_date = pd.to_datetime("2021-11-28", format='%Y-%m-%d')
 date_cols = [
     "date_antigen_negative",
     "date_exposure_to_disease",

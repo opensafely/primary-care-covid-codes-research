@@ -16,7 +16,7 @@ from codelists import *
 
 
 from_date = "2020-02-01"
-
+to_date = "2021-11-28"
 study = StudyDefinition(
     default_expectations={
         "date": {"earliest": "1970-01-01", "latest": "today"},
@@ -25,7 +25,7 @@ study = StudyDefinition(
     },
     # This line defines the study population
     population=patients.registered_with_one_practice_between(
-        "2019-02-01", "2020-02-01"
+        from_date, to_date
     ),
 
     
@@ -33,7 +33,7 @@ study = StudyDefinition(
     # demographic info 
     # https://github.com/ebmdatalab/tpp-sql-notebook/issues/33
     age=patients.age_as_of(
-        "2020-02-01",
+        from_date,
         return_expectations={
             "rate": "universal",
             "int": {"distribution": "population_ages"},
@@ -48,7 +48,7 @@ study = StudyDefinition(
     ),
     # https://github.com/ebmdatalab/tpp-sql-notebook/issues/52
     imd=patients.address_as_of(
-        "2020-02-01",
+        from_date,
         returning="index_of_multiple_deprivation",
         round_to_nearest=100,
         return_expectations={
@@ -58,7 +58,7 @@ study = StudyDefinition(
     ),
     # https://github.com/ebmdatalab/tpp-sql-notebook/issues/54
     stp=patients.registered_practice_as_of(
-        "2020-02-01",
+        from_date,
         returning="stp_code",
         return_expectations={
             "rate": "universal",
@@ -80,7 +80,7 @@ study = StudyDefinition(
     ),
     # region - one of NHS England 9 regions
     region=patients.registered_practice_as_of(
-        "2020-02-01",
+        from_date,
         returning="nuts1_region_name",
         return_expectations={
             "rate": "universal",
@@ -273,7 +273,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -284,7 +284,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -295,7 +295,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -306,7 +306,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -317,7 +317,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -328,7 +328,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -339,7 +339,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -350,7 +350,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest":from_date},
         },
     ),
 
@@ -361,7 +361,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -372,7 +372,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -383,7 +383,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -394,7 +394,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -405,7 +405,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         date_format="YYYY-MM-DD",
         return_expectations={
-            "date": {"earliest": "2020-03-01"},
+            "date": {"earliest": from_date},
         },
     ),
 
@@ -416,7 +416,7 @@ study = StudyDefinition(
         find_first_match_in_period=True,
         returning="date",
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": from_date}},
     ),
 
 
@@ -426,7 +426,7 @@ study = StudyDefinition(
         returning="binary_flag",
         on_or_after=from_date,
         match_only_underlying_cause=False,
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": from_date}},
     ),
     died_ons_covid_underlying=patients.with_these_codes_on_death_certificate(
         codes_covid_death,
@@ -438,7 +438,7 @@ study = StudyDefinition(
     died_ons=patients.died_from_any_cause(
         returning="binary_flag",
         on_or_after=from_date,
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": from_date}},
     ),
 
     died_ons_noncovid = patients.satisfying(
@@ -460,7 +460,7 @@ study = StudyDefinition(
         returning="date_of_death",
         on_or_after=from_date,
         date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": "2020-03-01"}},
+        return_expectations={"date": {"earliest": from_date}},
     ),
 
 )

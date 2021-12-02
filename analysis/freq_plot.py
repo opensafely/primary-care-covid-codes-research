@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
 
 codecounts_week = pd.read_csv(
     filepath_or_buffer = "output/codecounts_week.csv"
@@ -9,7 +10,9 @@ codecounts_total = codecounts_week.sum()
 #################################### plots 1 ###################################
 def plotstyle(axesrow, axescol, title):
     axs[axesrow,axescol].set_ylabel('Count per week')
-    axs[axesrow,axescol].xaxis.set_tick_params(labelrotation=70)
+    axs[axesrow,axescol].xaxis.set_tick_params(labelrotation=90)
+    loc = plticker.MultipleLocator(base=3.0)
+    axs[axesrow,axescol].xaxis.set_major_locator(loc)
     #axs[0,0].set_ylim(bottom=0) # might remove this in future depending on count fluctuation
     axs[axesrow,axescol].grid(axis='y')
     axs[axesrow,axescol].legend()
@@ -26,12 +29,14 @@ probable = ['probable_covid', 'probable_covid_pos_test', 'probable_covid_sequela
 probable_lab=["probable case","positive test","sequalae"]
 for i in range(0, len(probable)): 
     axs[0,0].plot(
-    codecounts_week.index, 
+    codecounts_week["Unnamed: 0"], 
     codecounts_week[probable[i]], 
     marker='o', 
     markersize=2, 
     label=f"""Code for {probable_lab[i]}, N={codecounts_total[probable[i]]}""",
     )
+
+
 plotstyle(0,0, "Primary Care Probable COVID-19\n");
 
 suspected = ['suspected_covid',
@@ -46,7 +51,7 @@ suspected_lab=["suspected",
    
 for i in range(0, len(suspected)): 
     axs[0,1].plot(
-        codecounts_week.index, 
+        codecounts_week["Unnamed: 0"], 
         codecounts_week[suspected[i]], 
         marker='o', 
         markersize=2, 
@@ -55,7 +60,7 @@ for i in range(0, len(suspected)):
 plotstyle(0,1, "Primary Care Suspected COVID-19\n");
 
 axs[1,0].plot(
-    codecounts_week.index, 
+    codecounts_week["Unnamed: 0"], 
     codecounts_week["sgss_positive_test"], 
     marker='o', 
     markersize=2, 
@@ -64,7 +69,7 @@ axs[1,0].plot(
 plotstyle(1,0, "SGSS tests\n");
 
 axs[1,1].plot(
-    codecounts_week.index, 
+    codecounts_week["Unnamed: 0"], 
     codecounts_week["antigen_negative"], 
     marker='o', 
     markersize=2, 
