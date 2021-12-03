@@ -6,7 +6,7 @@ from functions import *
 
 def redact_small_numbers(df, column):
     mask = df[column].isin([1, 2, 3, 4, 5])
-    df.loc[mask, :] = np.nan
+    df.loc[mask, column] = 0
     return df
 
 # import data
