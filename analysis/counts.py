@@ -4,6 +4,11 @@ import sys
 sys.path.append('lib/')
 from functions import *
 
+def redact_small_numbers(df, column):
+    mask = df[column].isin([1, 2, 3, 4, 5])
+    df.loc[mask, :] = np.nan
+    return df
+
 # import data
 df = pd.read_csv(
     filepath_or_buffer = 'output/input.csv',    
@@ -24,7 +29,7 @@ codecounts_day = activity_dates.apply(lambda x: eventcountseries(event_dates=x, 
 
 #derive count activity per week
 codecounts_week = codecounts_day.resample('W').sum()
-codecounts_week.to_csv("output/codecounts_week.csv")
+
 
 #derive total code activity over whole time period
 codecounts_total = codecounts_week.sum()
@@ -129,7 +134,10 @@ tabledata['Codelist']="<a href='"+tabledata['link']+"' target='_blank'>"+tableda
 codecounts_total.name = "Count"
 
 tabledata = tabledata.merge(codecounts_total, left_index=True, right_index=True)
-tabledata.to_csv("output/tabledata.csv")
+redact_small_numbers(tabledata,"Count").to_csv("output/tabledata.csv")
 
+cols= codecounts_week.columns.values.tolist()
+for col in cols:
+    codecounts_week=redact_small_numbers(codecounts_week,col)
 
-
+codecounts_week.to_csv("output/codecounts_week.csv")
