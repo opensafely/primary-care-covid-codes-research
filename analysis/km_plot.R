@@ -63,7 +63,8 @@ plot_theme <-
 
 ## Import processed data ----
 
-data_cohort <- read_csv(here::here("output", "input.csv"))
+data_cohort <- read_csv(here::here("output", "input.csv")) %>%
+  mutate(across(starts_with("date"),  as.Date))
 
 # derive start and end dates
 minmax <- data_cohort %>%   
