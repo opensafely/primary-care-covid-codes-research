@@ -215,7 +215,7 @@ ggplot_surv <- function(.surv_data, colour_var, colour_name, colour_type="qual",
 
   lines <- list(geom_step(aes(x=time, y=1-surv)))
   if(ci){
-    lines <- append(lines, list(geom_rect(aes(xmin=time, xmax=leadtime, ymin=surv.ll, ymax=surv.ul), alpha=0.1, colour="transparent")))
+    lines <- append(lines, list(geom_rect(aes(xmin=time, xmax=leadtime, ymin=1-surv.ll, ymax=1-surv.ul), alpha=0.1, colour="transparent")))
   }
 
   surv_plot <- .surv_data %>%
@@ -223,8 +223,7 @@ ggplot_surv <- function(.surv_data, colour_var, colour_name, colour_type="qual",
     lines+
     get_colour_scales(colour_type)+
     scale_x_continuous(breaks = seq(0,80,10))+
-    scale_y_continuous(expand = expansion(mult=c(0,0.01)))+
-    coord_cartesian(xlim=c(0, 80),ylim=c(0,0.00004))+
+    coord_cartesian(xlim=c(0, 80))+
     labs(
       x="Days since vaccination",
       y="Event-free rate",
