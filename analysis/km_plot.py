@@ -51,6 +51,7 @@ kmdata = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indi
 kmdata_covid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_noncovid'])
 
+
 axes[0].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[0].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[0].set_xlabel('Days')
@@ -73,5 +74,5 @@ axes[1].set_xlim(0, 80)
 
 fig.suptitle("Days from positive test to death", y=1.05, fontsize=14)
 fig.tight_layout()
-fig.savefig("output/figs.svg")
+fig.savefig("output/figs.tiff")
 
