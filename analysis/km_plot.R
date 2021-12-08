@@ -223,7 +223,7 @@ ggplot_surv <- function(.surv_data, colour_var, colour_name, colour_type="qual",
     lines+
     get_colour_scales(colour_type)+
     scale_x_continuous(breaks = seq(0,80,10))+
-    coord_cartesian(xlim=c(0, 80))+
+    coord_cartesian(xlim=c(0, 80),ylim = c(0,0.00004))+
     labs(
       x="Days since vaccination",
       y="Event-free rate",
