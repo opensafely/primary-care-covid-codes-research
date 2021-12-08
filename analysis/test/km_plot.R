@@ -79,10 +79,6 @@ data <- data_cohort %>%
     mutate(start_date=minmax$min,
             end_date=minmax$max)
 
-
-
-
-
 data_tte <- data %>%
   transmute(
     patient_id,
@@ -93,18 +89,21 @@ data_tte <- data %>%
       end_date,
       na.rm=TRUE
     ),
-    indicator_death = case_when(date_died_ons<=end_date & died_ons==1~1,
-                                TRUE ~ 0),
-    indicator_death_covid = case_when(date_died_ons<=end_date & died_ons_covid==1~1,
-                                TRUE ~ 0),
-    indicator_death_noncovid = case_when(date_died_ons<=end_date & died_ons_noncovid==1~1,
-                                TRUE ~ 0),
+    indicator_death = case_when(date_died_ons<=end_date & died_ons==1~T,
+                                TRUE ~ F),
+    indicator_death_covid = case_when(date_died_ons<=end_date & died_ons_covid==1~T,
+                                TRUE ~ F),
+    indicator_death_noncovid = case_when(date_died_ons<=end_date & died_ons_noncovid==1~T,
+                                TRUE ~ F),
 # censor death category if end date exceeds last date
     death_category = case_when( is.na(date_died_ons)~"alive",
                                 date_died_ons>end_date ~ "alive",
                                 TRUE ~ death_category),
     pvetestSGSS_to_death = date_event - date_sgss_positive_test,
-    pvetestPC_to_death = date_event - date_probable_covid_pos_test
+    pvetestPC_to_death = date_event - date_probable_covid_pos_test,
+    tteSGSS = tte(date_sgss_positive_test,date_died_ons,end_date),
+    indicator_death_covid_calc = censor_indicator(died_ons_covid,end_date),
+    indicator_death_noncovid_calc = censor_indicator(died_ons_noncovid,end_date)
   )
 
 ## positive test as indicated in SGSS or in primary care
@@ -114,21 +113,19 @@ df_pvetestSGSS <- data_tte %>%
   drop_na(date_sgss_positive_test)
 
 covid_deaths <- df_pvetestSGSS %>%
-  mutate(group="Covid Death") %>%
-  rename("indicator"="indicator_death_covid") %>%
-  select(pvetestSGSS_to_death,group,indicator)
+  transmute(group="Covid Death",
+            indicator=indicator_death_covid_calc,
+            tteSGSS,
+            patient_id)
 
 non_covid_deaths <- df_pvetestSGSS %>%
-  mutate(group="Non-Covid Death") %>%
-  rename("indicator"="indicator_death_noncovid") %>%
-  select(pvetestSGSS_to_death,group,indicator)
-
+  transmute(group="Non-Covid Death",
+            indicator=indicator_death_noncovid_calc,
+            tteSGSS,
+            patient_id)
+ 
 SGSS<-non_covid_deaths %>%
-  bind_rows(covid_deaths) %>%
-  mutate(pvetestSGSS_to_death = as.numeric(pvetestSGSS_to_death),
-         group=as.factor(group),
-         indicator=case_when(indicator==0~FALSE,
-                             indicator==1~TRUE))
+  bind_rows(covid_deaths)
 
 
 
@@ -223,7 +220,7 @@ ggplot_surv <- function(.surv_data, colour_var, colour_name, colour_type="qual",
     lines+
     get_colour_scales(colour_type)+
     scale_x_continuous(breaks = seq(0,80,10))+
-    coord_cartesian(xlim=c(0, 80),ylim = c(0,0.00004))+
+    coord_cartesian(xlim=c(0, 80))+
     labs(
       x="Days since vaccination",
       y="Event-free rate",
@@ -240,7 +237,7 @@ ggplot_surv <- function(.surv_data, colour_var, colour_name, colour_type="qual",
 }
 
 
-test_surv <- survobj(SGSS, "pvetestSGSS_to_death", "indicator", "group",0)
+test_surv <- survobj(SGSS, "tteSGSS", "indicator", "group",0)
 kmplot<-ggplot_surv(test_surv, "group", "", "qual", TRUE, TRUE)
 ggsave(filename=here::here("output", "figsr.tiff"),kmplot,width = 10, height = 15, units = "cm")
 

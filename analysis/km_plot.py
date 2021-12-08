@@ -1,6 +1,7 @@
 #################################################################################
 ######################### figure 2 KM ###########################################
 #################################################################################
+import math
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -47,9 +48,19 @@ df_pvetestPC = df[~np.isnan(df['date_probable_covid_pos_test'])]
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,5), sharey=True)
 
 # SGSS pos test to death
+
 kmdata = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death'])
 kmdata_covid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_noncovid'])
+
+### add rounding
+threshold=5
+
+covid_to=1/math.floor(kmdata_covid["atrisk"].max()/(threshold+1))
+kmdata_covid["kmestimate"]=round(kmdata_covid["kmestimate"]/covid_to,9).apply(math.ceil)*covid_to
+
+noncovid_to=1/math.floor(kmdata_noncovid["atrisk"].max()/(threshold+1))
+kmdata_noncovid["kmestimate"]=round(kmdata_noncovid["kmestimate"]/noncovid_to,9).apply(math.ceil)*noncovid_to
 
 
 axes[0].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
@@ -64,6 +75,16 @@ axes[0].set_xlim(0, 80)
 kmdata = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death'])
 kmdata_covid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_noncovid'])
+
+### add rounding
+covid_to=1/math.floor(kmdata_covid["atrisk"].max()/(threshold+1))
+
+   # Use ceiling not round. This is slightly biased upwards,
+      # but means there's no disclosure risk at the boundaries (0 and 1) where masking would otherwise be threshold/2
+kmdata_covid["kmestimate"]=round(kmdata_covid["kmestimate"]/covid_to,9).apply(math.ceil)*covid_to
+
+noncovid_to=1/math.floor(kmdata_noncovid["atrisk"].max()/(threshold+1))
+kmdata_noncovid["kmestimate"]=round(kmdata_noncovid["kmestimate"]/noncovid_to,9).apply(math.ceil)*noncovid_to
 
 axes[1].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[1].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
