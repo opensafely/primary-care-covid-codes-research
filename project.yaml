@@ -34,10 +34,4 @@ actions:
       moderately_sensitive:  
         figs: output/figs.tiff
 
-  km_plotsr:
-    run: r:latest analysis/km_plot.R
-    needs: [generate_cohort]
-    outputs:
-      moderately_sensitive:  
-        figs: output/figsr.tiff
         
