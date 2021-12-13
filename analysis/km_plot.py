@@ -54,14 +54,12 @@ kmdata_covid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS
 kmdata_noncovid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_noncovid'])
 
 ### add rounding
-threshold=5
+def km_round(df,threshold):
+    to=1/math.floor(df["atrisk"].max()/(threshold+1))
+    df["kmestimate"]=round(df["kmestimate"]/to,9).apply(math.ceil)*to
 
-covid_to=1/math.floor(kmdata_covid["atrisk"].max()/(threshold+1))
-kmdata_covid["kmestimate"]=round(kmdata_covid["kmestimate"]/covid_to,9).apply(math.ceil)*covid_to
-
-noncovid_to=1/math.floor(kmdata_noncovid["atrisk"].max()/(threshold+1))
-kmdata_noncovid["kmestimate"]=round(kmdata_noncovid["kmestimate"]/noncovid_to,9).apply(math.ceil)*noncovid_to
-
+km_round(kmdata_covid,5)
+km_round(kmdata_noncovid,5)
 
 axes[0].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[0].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
@@ -76,15 +74,10 @@ kmdata = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_
 kmdata_covid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_noncovid'])
 
+
 ### add rounding
-covid_to=1/math.floor(kmdata_covid["atrisk"].max()/(threshold+1))
-
-   # Use ceiling not round. This is slightly biased upwards,
-      # but means there's no disclosure risk at the boundaries (0 and 1) where masking would otherwise be threshold/2
-kmdata_covid["kmestimate"]=round(kmdata_covid["kmestimate"]/covid_to,9).apply(math.ceil)*covid_to
-
-noncovid_to=1/math.floor(kmdata_noncovid["atrisk"].max()/(threshold+1))
-kmdata_noncovid["kmestimate"]=round(kmdata_noncovid["kmestimate"]/noncovid_to,9).apply(math.ceil)*noncovid_to
+km_round(kmdata_covid,5)
+km_round(kmdata_noncovid,5)
 
 axes[1].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[1].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
