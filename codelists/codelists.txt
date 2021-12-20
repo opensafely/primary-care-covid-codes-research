@@ -1,12 +1,12 @@
-opensafely/covid-identification-in-primary-care-antigen-test-negative/2020-06-24
+opensafely/covid-identification-in-primary-care-antigen-test-negative/702547ee
 opensafely/covid-identification-in-primary-care-exposure-to-disease/2020-06-23
 opensafely/covid-identification-in-primary-care-historic-case/2020-06-23
-opensafely/covid-identification-in-primary-care-potential-historic-case/2020-06-23
+opensafely/covid-identification-in-primary-care-potential-historic-case/0be77b1a
 opensafely/covid-identification-in-primary-care-probable-covid-clinical-code/2020-07-16
-opensafely/covid-identification-in-primary-care-probable-covid-positive-test/2020-07-16
+opensafely/covid-identification-in-primary-care-probable-covid-positive-test/0934bb24
 opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16
 opensafely/covid-identification-in-primary-care-suspected-covid-advice/2020-07-16
-opensafely/covid-identification-in-primary-care-suspected-covid-had-test/2020-07-16
+opensafely/covid-identification-in-primary-care-suspected-covid-had-test/40b9217a
 opensafely/covid-identification-in-primary-care-suspected-covid-isolation-code/2020-07-16
 opensafely/covid-identification-in-primary-care-suspected-covid-nonspecific-clinical-assessment/2020-07-16
 opensafely/covid-identification-in-primary-care-suspected-covid-suspected-codes/2020-07-16

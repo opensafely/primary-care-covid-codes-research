@@ -1,0 +1,88 @@
+{
+  "files": {
+    "opensafely-covid-identification-in-primary-care-antigen-test-negative.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-antigen-test-negative/702547ee",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-antigen-test-negative/702547ee/",
+      "downloaded_at": "2021-12-20 13:34:31.183954Z",
+      "sha": "d84497036c566acfe52f656fc02f036e7026cd87"
+    },
+    "opensafely-covid-identification-in-primary-care-exposure-to-disease.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-exposure-to-disease/2020-06-23",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-exposure-to-disease/2020-06-23/",
+      "downloaded_at": "2021-12-20 13:34:31.428290Z",
+      "sha": "b7cd77be113fa93776d072da047dc22b4a021091"
+    },
+    "opensafely-covid-identification-in-primary-care-historic-case.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-historic-case/2020-06-23",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-historic-case/2020-06-23/",
+      "downloaded_at": "2021-12-20 13:34:31.660501Z",
+      "sha": "81b19000febb049f21d00d649a0d7a0c77fae3b1"
+    },
+    "opensafely-covid-identification-in-primary-care-potential-historic-case.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-potential-historic-case/0be77b1a",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-potential-historic-case/0be77b1a/",
+      "downloaded_at": "2021-12-20 13:34:31.899610Z",
+      "sha": "02b27ba4404b17cc755f8122a4e09eea8f3aabbc"
+    },
+    "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-probable-covid-clinical-code/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-clinical-code/2020-07-16/",
+      "downloaded_at": "2021-12-20 13:34:32.173243Z",
+      "sha": "5de38f993b166d6ef97c6ea822635317a6c7ae85"
+    },
+    "opensafely-covid-identification-in-primary-care-probable-covid-positive-test.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-probable-covid-positive-test/0934bb24",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-positive-test/0934bb24/",
+      "downloaded_at": "2021-12-20 13:34:32.424010Z",
+      "sha": "31c2cd7c1fdb0abe18715540b7bac9e2060fe78e"
+    },
+    "opensafely-covid-identification-in-primary-care-probable-covid-sequelae.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16/",
+      "downloaded_at": "2021-12-20 13:34:32.680486Z",
+      "sha": "38dc0c0a34e2b8b376ba72819923f442c30b4946"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-advice.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-advice/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-advice/2020-07-16/",
+      "downloaded_at": "2021-12-20 13:34:32.919950Z",
+      "sha": "b898d52ea318da16cbeea0ba2d2a1635b3673f90"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-had-test.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-had-test/40b9217a",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-had-test/40b9217a/",
+      "downloaded_at": "2021-12-20 13:34:33.177492Z",
+      "sha": "640e522b34efbcdbd02d7320a502ac24514372ee"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-isolation-code.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-isolation-code/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-isolation-code/2020-07-16/",
+      "downloaded_at": "2021-12-20 13:34:33.420879Z",
+      "sha": "36bba5f68368ff788ac243b5912df5db96c2b99c"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-nonspecific-clinical-assessment.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-nonspecific-clinical-assessment/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-nonspecific-clinical-assessment/2020-07-16/",
+      "downloaded_at": "2021-12-20 13:34:33.664597Z",
+      "sha": "99d10fc347d107a8a7c490180ed91d39bd2e1275"
+    },
+    "opensafely-covid-identification-in-primary-care-suspected-covid-suspected-codes.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-suspected-covid-suspected-codes/2020-07-16",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-suspected-covid-suspected-codes/2020-07-16/",
+      "downloaded_at": "2021-12-20 13:34:33.912214Z",
+      "sha": "cabe593830301e976654435e2d662d9e68fa9e66"
+    },
+    "opensafely-covid-identification-in-primary-care-unrelated-to-case-status.csv": {
+      "id": "opensafely/covid-identification-in-primary-care-unrelated-to-case-status/2020-06-23",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-unrelated-to-case-status/2020-06-23/",
+      "downloaded_at": "2021-12-20 13:34:34.163793Z",
+      "sha": "be44a33eb963f04cf14145ac1c57334592e71728"
+    },
+    "opensafely-covid-identification.csv": {
+      "id": "opensafely/covid-identification/2020-06-03",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification/2020-06-03/",
+      "downloaded_at": "2021-12-20 13:34:34.423186Z",
+      "sha": "124db6929439379b7dacd55ba26ae4f2ed9370bc"
+    }
+  }
+}
