@@ -409,6 +409,17 @@ study = StudyDefinition(
         },
     ),
 
+    date_suspected_covid_had_antigen_test=patients.with_these_clinical_events(
+        codes_suspected_covid_had_antigen_test,
+        returning="date",
+        on_or_after=from_date,
+        find_first_match_in_period=True,
+        date_format="YYYY-MM-DD",
+        return_expectations={
+            "date": {"earliest": from_date},
+        },
+    ),
+
 
     date_sgss_positive_test=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",
