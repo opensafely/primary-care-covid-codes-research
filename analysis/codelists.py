@@ -62,6 +62,9 @@ codes_covid_unrelated_to_case_status = codelist_from_csv(
     "codelists/opensafely-covid-identification-in-primary-care-unrelated-to-case-status.csv", system="ctv3", column="CTV3ID"
 )
 
+codes_suspected_covid_had_antigen_test = codelist_from_csv(
+    "codelists/user-candrews-covid-identification-in-primary-care-suspected-covid-had-antigen-test.csv", system="ctv3", column="code"
+)
 
 codes_covid_death = codelist_from_csv(
     "codelists/opensafely-covid-identification.csv", system="icd10", column="icd10_code"

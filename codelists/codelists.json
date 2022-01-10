@@ -78,6 +78,12 @@
       "downloaded_at": "2021-12-20 13:34:34.163793Z",
       "sha": "be44a33eb963f04cf14145ac1c57334592e71728"
     },
+    "user-candrews-covid-identification-in-primary-care-suspected-covid-had-antigen-test.csv": {
+      "id": "user/candrews/covid-identification-in-primary-care-suspected-covid-had-antigen-test/0e9a3b10",
+      "url": "https://codelists.opensafely.org/codelist/user/candrews/covid-identification-in-primary-care-suspected-covid-had-antigen-test/0e9a3b10/",
+      "downloaded_at": "2022-01-10 15:17:02.927950Z",
+      "sha": "50ded39eb8de6bccc98c630523e35c1225b828b8"
+    },
     "opensafely-covid-identification.csv": {
       "id": "opensafely/covid-identification/2020-06-03",
       "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification/2020-06-03/",

@@ -41,11 +41,14 @@ plotstyle(0,0, "Primary Care Probable COVID-19\n");
 
 suspected = ['suspected_covid',
  'suspected_covid_had_test',
+ 'suspected_covid_had_antigen_test',
  'suspected_covid_isolation',
- 'suspected_covid_advice']
+ 'suspected_covid_advice'
+ ]
 
 suspected_lab=["suspected",
 "had test",
+"had antigen test",
 "isolation",
 "advice to isolate"]
    

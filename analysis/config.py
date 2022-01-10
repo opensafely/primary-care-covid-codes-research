@@ -18,6 +18,7 @@ date_cols = [
     "date_suspected_covid",
     "date_covid_unrelated_to_case_status",
     "date_sgss_positive_test",
-    "date_died_ons"
+    "date_died_ons",
+    "date_suspected_covid_had_antigen_test"
 ]
 
