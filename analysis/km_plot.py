@@ -88,5 +88,5 @@ axes[1].set_xlim(0, 80)
 
 fig.suptitle("Days from positive test to death", y=1.05, fontsize=14)
 fig.tight_layout()
-fig.savefig("output/figs.tiff")
+fig.savefig("output/figs.svg")
 

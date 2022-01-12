@@ -32,6 +32,11 @@ actions:
     needs: [generate_cohort]
     outputs:
       moderately_sensitive:  
-        figs: output/figs.tiff
+        figs: output/figs.svg
 
-        
+  notebook_md:
+    run: jupyter:latest jupyter nbconvert /workspace/notebooks/primary-care-covid-codes.ipynb --execute --to html --template basic --output-dir=/workspace/output --ExecutePreprocessor.timeout=86400 --no-input
+    needs: [generate_cohort,km_plots,counts]
+    outputs:
+      moderately_sensitive:
+        md: output/primary-care-covid-codes.html
