@@ -87,13 +87,12 @@ date_cols = [
 
 # import data
 df = pd.read_csv(
-    filepath_or_buffer = '../output/input.csv',    
-    parse_dates = date_cols
+     '../output/input.feather'
 )
 # -
 
 #when was the study cohort csv file last updated?
-cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.csv"), unit='s')
+cohort_run_date = pd.to_datetime(os.path.getmtime("../output/input.feather"), unit='s')
 
 # +
 # get build times from the database
