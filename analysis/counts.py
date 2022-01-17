@@ -11,8 +11,7 @@ def redact_small_numbers(df, column):
 
 # import data
 df = pd.read_feather(
-    filepath_or_buffer = 'output/input.feather',    
-    parse_dates = date_cols
+   'output/input.feather'
 )
 
 # Make a dataframe with consecutive dates

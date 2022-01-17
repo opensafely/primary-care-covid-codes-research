@@ -14,8 +14,7 @@ from functions import *
 
 # import data
 df = pd.read_feather(
-    filepath_or_buffer = 'output/input.feather',    
-    parse_dates = date_cols
+ 'output/input.feather'
 )
 
 #derive start/end dates
