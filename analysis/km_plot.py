@@ -13,9 +13,8 @@ from functions import *
 #specify date columns
 
 # import data
-df = pd.read_csv(
-    filepath_or_buffer = 'output/input.csv',    
-    parse_dates = date_cols
+df = pd.read_feather(
+ 'output/input.feather'
 )
 
 #derive start/end dates
