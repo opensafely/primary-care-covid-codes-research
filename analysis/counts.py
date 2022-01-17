@@ -10,8 +10,8 @@ def redact_small_numbers(df, column):
     return df
 
 # import data
-df = pd.read_csv(
-    filepath_or_buffer = 'output/input.csv',    
+df = pd.read_feather(
+    filepath_or_buffer = 'output/input.feather',    
     parse_dates = date_cols
 )
 

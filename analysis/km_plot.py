@@ -13,8 +13,8 @@ from functions import *
 #specify date columns
 
 # import data
-df = pd.read_csv(
-    filepath_or_buffer = 'output/input.csv',    
+df = pd.read_feather(
+    filepath_or_buffer = 'output/input.feather',    
     parse_dates = date_cols
 )
 
