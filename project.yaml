@@ -19,7 +19,8 @@ actions:
     outputs:
       moderately_sensitive:
         reports: output/cohort_reports_outputs/descriptives_input.html
-
+        reports: output/cohort_reports_outputs/*.png
+      
 
   counts:
     run: python:latest python analysis/counts.py
