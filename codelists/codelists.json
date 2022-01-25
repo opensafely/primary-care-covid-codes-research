@@ -19,10 +19,10 @@
       "sha": "81b19000febb049f21d00d649a0d7a0c77fae3b1"
     },
     "opensafely-covid-identification-in-primary-care-potential-historic-case.csv": {
-      "id": "opensafely/covid-identification-in-primary-care-potential-historic-case/0be77b1a",
-      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-potential-historic-case/0be77b1a/",
-      "downloaded_at": "2021-12-20 13:34:31.899610Z",
-      "sha": "02b27ba4404b17cc755f8122a4e09eea8f3aabbc"
+      "id": "opensafely/covid-identification-in-primary-care-potential-historic-case/05533959",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-potential-historic-case/05533959/",
+      "downloaded_at": "2022-01-25 11:31:55.148371Z",
+      "sha": "12a2c1473584676c9d04c9341d549d961112c733"
     },
     "opensafely-covid-identification-in-primary-care-probable-covid-clinical-code.csv": {
       "id": "opensafely/covid-identification-in-primary-care-probable-covid-clinical-code/2020-07-16",
@@ -31,10 +31,10 @@
       "sha": "5de38f993b166d6ef97c6ea822635317a6c7ae85"
     },
     "opensafely-covid-identification-in-primary-care-probable-covid-positive-test.csv": {
-      "id": "opensafely/covid-identification-in-primary-care-probable-covid-positive-test/0934bb24",
-      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-positive-test/0934bb24/",
-      "downloaded_at": "2021-12-20 13:34:32.424010Z",
-      "sha": "31c2cd7c1fdb0abe18715540b7bac9e2060fe78e"
+      "id": "opensafely/covid-identification-in-primary-care-probable-covid-positive-test/508192f8",
+      "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-positive-test/508192f8/",
+      "downloaded_at": "2022-01-25 11:31:55.516498Z",
+      "sha": "510e103970c4131e6e276fd3b5094b68d2e7905c"
     },
     "opensafely-covid-identification-in-primary-care-probable-covid-sequelae.csv": {
       "id": "opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16",
