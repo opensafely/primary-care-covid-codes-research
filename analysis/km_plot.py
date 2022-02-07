@@ -55,14 +55,14 @@ kmdata_covid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS
 kmdata_noncovid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_noncovid'])
 
 #add smoothing
-def smooth(df):
+def smoothing(df):
     x=df['times'] 
     y1 = df['kmestimate']
     smooth = lowess(y1, x, is_sorted=True, frac=0.025, it=0)
     df['kmestimate'] = smooth[:,1]
 
-smooth(kmdata_covid)
-smooth(kmdata_noncovid)
+smoothing(kmdata_covid)
+smoothing(kmdata_noncovid)
 
 ### add rounding
 # def km_round(df,threshold):
@@ -85,8 +85,8 @@ kmdata_covid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indi
 kmdata_noncovid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_noncovid'])
 
 #add smoothing
-smooth(kmdata_covid)
-smooth(kmdata_noncovid)
+smoothing(kmdata_covid)
+smoothing(kmdata_noncovid)
 
 ### add rounding
 # km_round(kmdata_covid,5)
