@@ -9,6 +9,8 @@ import numpy as np
 from config import date_cols
 sys.path.append('lib/')
 from functions import *
+from statsmodels.nonparametric.smoothers_lowess import lowess
+
 
 #specify date columns
 
@@ -52,16 +54,25 @@ kmdata = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indi
 kmdata_covid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestSGSS['pvetestSGSS_to_death'], df_pvetestSGSS['indicator_death_noncovid'])
 
+#add smoothing
+def smooth(df):
+    x=df['times'] 
+    y1 = df['kmestimate']
+    smooth = lowess(y1, x, is_sorted=True, frac=0.025, it=0)
+    df['kmestimate'] = smooth[:,1]
+
+smooth(kmdata_covid)
+smooth(kmdata_noncovid)
+
 ### add rounding
-def km_round(df,threshold):
-    to=1/math.floor(df["atrisk"].max()/(threshold+1))
-    df["kmestimate"]=round(df["kmestimate"]/to,9).apply(math.ceil)*to
-
-km_round(kmdata_covid,5)
-km_round(kmdata_noncovid,5)
-
-axes[0].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
-axes[0].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
+# def km_round(df,threshold):
+#     to=1/math.floor(df["atrisk"].max()/(threshold+1))
+#     df["kmestimate"]=round(df["kmestimate"]/to,9).apply(math.ceil)*to
+#  km_round(kmdata_covid,5)
+#  km_round(kmdata_noncovid,5)
+ 
+axes[0].plot(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
+axes[0].plot(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[0].set_xlabel('Days')
 axes[0].set_ylabel('1 - KM survival estimate')
 axes[0].set_title("as identified from SGSS data\n")
@@ -73,13 +84,16 @@ kmdata = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_
 kmdata_covid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_covid'])
 kmdata_noncovid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['indicator_death_noncovid'])
 
+#add smoothing
+smooth(kmdata_covid)
+smooth(kmdata_noncovid)
 
 ### add rounding
-km_round(kmdata_covid,5)
-km_round(kmdata_noncovid,5)
+# km_round(kmdata_covid,5)
+# km_round(kmdata_noncovid,5)
 
-axes[1].step(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
-axes[1].step(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
+axes[1].plot(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
+axes[1].plot(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[1].set_xlabel('Days')
 axes[1].set_ylabel('1 - KM survival estimate')
 axes[1].set_title("as identified from primary care data\n")
