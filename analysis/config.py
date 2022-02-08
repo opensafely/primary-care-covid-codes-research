@@ -21,4 +21,3 @@ date_cols = [
     "date_died_ons",
     "date_suspected_covid_had_antigen_test"
 ]
-

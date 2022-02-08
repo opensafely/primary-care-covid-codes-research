@@ -73,3 +73,41 @@ def KMestimate(times, indicators):
             kmdata.loc[i, 'kmestimate'] = kmdata.loc[i-1, 'kmestimate'] * (kmdata.loc[i, 'atrisk'] - kmdata.loc[i, 'died'])/kmdata.loc[i, 'atrisk']
 
     return kmdata
+
+def redact_small_numbers(df, n, colname):
+    """
+    Takes counts df as input and suppresses low numbers.  Sequentially redacts
+    low numbers from colname >=n.
+    df: input df
+    n: threshold for low number suppression
+    colname: column to be redacted
+    """
+
+    def suppress_column(column):
+        suppressed_count = column[column <= n].sum()
+
+        # if 0 dont need to suppress anything
+        if suppressed_count == 0:
+            pass
+
+        else:
+            column[column <= n] = np.nan
+
+            while suppressed_count <= n:
+                suppressed_count += column.min()
+
+                column[column.idxmin()] = np.nan
+        return column
+
+    df_list = []
+
+    for columns in [colname]:
+            df_subset = df.loc[df[columns] == columns, :]
+            df_subset[columns] = suppress_column(df_subset[columns])
+
+            df_subset.loc[
+                (df_subset[columns].isna())
+            ] = np.nan
+            df_list.append(df_subset)
+
+    return pd.concat(df_list, axis=0)
