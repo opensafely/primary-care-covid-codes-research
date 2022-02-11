@@ -20,8 +20,8 @@ df = pd.read_feather(
 )
 
 #derive start/end dates
-df["start_date"] = df[date_cols].min().min()
-df["end_date"] = df[date_cols].max().max()
+df["start_date"] =df[[col for col in df.columns if col.endswith('_date')]].min().min()
+df["end_date"] = df[[col for col in df.columns if col.endswith('_date')]].max().max()
 
 
 # derive time-to-event censoring info

@@ -11,13 +11,40 @@ from cohortextractor import (
 from codelists import *
 
 
+# gp_consultation_date_X: Creates n columns for each consecutive GP consulation date
+def date_X(codes,n):
+    def var_signature(name, on_or_after):
+        return {
+            name: patients.with_these_clinical_events(
+                    globals()[codes],
+                    returning="date",
+                    on_or_after=on_or_after,
+                    date_format="YYYY-MM-DD",
+                    find_first_match_in_period=True,
+                    return_expectations={
+                        "date": {"earliest": from_date, "latest": to_date},
+                        }
+                    ),
+        }
+    
+    for i in range(1, n+1):
+        if i == 1:
+            variables = var_signature(f"{codes[6:]}_1_date", "index_date")
+        else:
+            variables.update(var_signature(f"{codes[6:]}_{i}_date", f"{codes[6:]}_{i-1}_date + 21 days"))
+    return variables
+
+
+
 ## STUDY POPULATION
 # Defines both the study population and points to the important covariates
 
-
+n = 4
 from_date = "2020-02-01"
 to_date = "2021-11-28"
+
 study = StudyDefinition(
+    index_date = from_date,
     default_expectations={
         "date": {"earliest": "1970-01-01", "latest": "today"},
         "rate": "uniform",
@@ -99,327 +126,22 @@ study = StudyDefinition(
         },
     ),
     
-       
     
-    
-    # covid-related codelists
-
-
-    # cat_antigen_negative = patients.with_these_clinical_events(
-    #     codes_antigen_negative,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     #find_first_match_in_period=True,
-    #     #date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         #"date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_exposure_to_disease=patients.with_these_clinical_events(
-    #     codes_exposure_to_disease,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     #find_first_match_in_period=True,
-    #     #date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         #"date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_historic_covid=patients.with_these_clinical_events(
-    #     codes_historic_covid,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_potential_historic_covid=patients.with_these_clinical_events(
-    #     codes_potential_historic_covid,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_probable_covid=patients.with_these_clinical_events(
-    #     codes_probable_covid,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_probable_covid_pos_test=patients.with_these_clinical_events(
-    #     codes_probable_covid_pos_test,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_probable_covid_sequelae=patients.with_these_clinical_events(
-    #     codes_probable_covid_sequelae,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_suspected_covid_advice=patients.with_these_clinical_events(
-    #     codes_suspected_covid_advice,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_suspected_covid_had_test=patients.with_these_clinical_events(
-    #     codes_suspected_covid_had_test,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_suspected_covid_isolation=patients.with_these_clinical_events(
-    #     codes_suspected_covid_isolation,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_suspected_covid_nonspecific=patients.with_these_clinical_events(
-    #     codes_suspected_covid_nonspecific,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_suspected_covid=patients.with_these_clinical_events(
-    #     codes_suspected_covid,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-    # cat_covid_unrelated_to_case_status=patients.with_these_clinical_events(
-    #     codes_covid_unrelated_to_case_status,
-    #     returning="category",
-    #     on_or_after=from_date,
-    #     # find_first_match_in_period=True,
-    #     # date_format="YYYY-MM-DD",
-    #     return_expectations={
-    #         # "date": {"earliest": "2020-03-01"},
-    #         "category": {"ratios": {"Y20ce": 0.5, "Y229e": 0.5}},
-    #     },
-    # ),
-    #
-
-
-
     # covid-related code dates
-
-    date_antigen_negative=patients.with_these_clinical_events(
-        codes_antigen_negative,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_exposure_to_disease=patients.with_these_clinical_events(
-        codes_exposure_to_disease,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_historic_covid=patients.with_these_clinical_events(
-        codes_historic_covid,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_potential_historic_covid=patients.with_these_clinical_events(
-        codes_potential_historic_covid,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_probable_covid=patients.with_these_clinical_events(
-        codes_probable_covid,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_probable_covid_pos_test=patients.with_these_clinical_events(
-        codes_probable_covid_pos_test,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_probable_covid_sequelae=patients.with_these_clinical_events(
-        codes_probable_covid_sequelae,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_suspected_covid_advice=patients.with_these_clinical_events(
-        codes_suspected_covid_advice,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest":from_date},
-        },
-    ),
-
-    date_suspected_covid_had_test=patients.with_these_clinical_events(
-        codes_suspected_covid_had_test,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_suspected_covid_isolation=patients.with_these_clinical_events(
-        codes_suspected_covid_isolation,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_suspected_covid_nonspecific=patients.with_these_clinical_events(
-        codes_suspected_covid_nonspecific,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_suspected_covid=patients.with_these_clinical_events(
-        codes_suspected_covid,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_covid_unrelated_to_case_status=patients.with_these_clinical_events(
-        codes_covid_unrelated_to_case_status,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
-    date_suspected_covid_had_antigen_test=patients.with_these_clinical_events(
-        codes_suspected_covid_had_antigen_test,
-        returning="date",
-        on_or_after=from_date,
-        find_first_match_in_period=True,
-        date_format="YYYY-MM-DD",
-        return_expectations={
-            "date": {"earliest": from_date},
-        },
-    ),
-
+    **date_X("codes_antigen_negative",n=n),    
+    **date_X("codes_exposure_to_disease",n=n),    
+    **date_X("codes_historic_covid",n=n),    
+    **date_X("codes_potential_historic_covid",n=n),    
+    **date_X("codes_probable_covid",n=n),    
+    **date_X("codes_probable_covid_pos_test",n=n),    
+    **date_X("codes_probable_covid_sequelae",n=n),    
+    **date_X("codes_suspected_covid_advice",n=n),    
+    **date_X("codes_suspected_covid_had_test",n=n),    
+    **date_X("codes_suspected_covid_isolation",n=n),    
+    **date_X("codes_suspected_covid_nonspecific",n=n),    
+    **date_X("codes_suspected_covid",n=n),    
+    **date_X("codes_covid_unrelated_to_case_status",n=n),    
+    **date_X("codes_suspected_covid_had_antigen_test",n=n),
 
     date_sgss_positive_test=patients.with_test_result_in_sgss(
         pathogen="SARS-CoV-2",

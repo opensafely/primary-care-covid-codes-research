@@ -14,23 +14,28 @@ df = pd.read_feather(
    'output/input.feather'
 )
 
+df['test2'] = df[[col for col in df.columns if col.endswith('_date')]].sum(axis=1)
 # Make a dataframe with consecutive dates
 consec_dates = pd.DataFrame(
     index=pd.date_range(start=start_date, end=end_date, freq="D")
 )
+codelists = ["antigen_negative","exposure_to_disease","historic_covid","probable_covid_sequelae","potential_historic_covid","probable_covid", "probable_covid_pos_test","suspected_covid_advice","suspected_covid_had_test","suspected_covid_isolation","suspected_covid_nonspecific","suspected_covid","covid_unrelated_to_case_status","suspected_covid_had_antigen_test"]
 
 # choose only date variables
-activity_dates = df.filter(items=date_cols)
-activity_dates.columns = activity_dates.columns.str.replace("date_", "")
+activity_dates = df[[col for col in df.columns if col.endswith('_date')]]
+activity_dates.columns = activity_dates.columns.str.replace("_date", "")
 
 # count code activity per day
 codecounts_day = activity_dates.apply(lambda x: eventcountseries(event_dates=x, date_range = consec_dates))
+for list in codelists:
+    codecounts_day[list] =  codecounts_day[[col for col in codecounts_day.columns if col.startswith(list)]].sum(axis=1)
 
+codecounts_day=codecounts_day.filter(items=codelists)
 #derive count activity per week
 codecounts_week = codecounts_day.resample('W').sum()
 
 cols= codecounts_week.columns.values.tolist()
-for col in cols:
+for col in codelists:
     codecounts_week=redact_small_numbers(codecounts_week,5,col)
 
 
