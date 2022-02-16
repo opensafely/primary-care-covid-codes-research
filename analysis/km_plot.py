@@ -6,13 +6,10 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from config import date_cols
+from config import n
 sys.path.append('lib/')
 from functions import *
 from statsmodels.nonparametric.smoothers_lowess import lowess
-
-
-#specify date columns
 
 # import data
 df = pd.read_feather(
@@ -22,7 +19,6 @@ df = pd.read_feather(
 #derive start/end dates
 df["start_date"] =df[[col for col in df.columns if col.endswith('_date')]].min().min()
 df["end_date"] = df[[col for col in df.columns if col.endswith('_date')]].max().max()
-
 
 # derive time-to-event censoring info
 
@@ -37,14 +33,24 @@ df['indicator_death_noncovid'] = np.where((df['date_died_ons']<=df['end_date']) 
 # censor death category if end date exceeds last date
 df['death_category'] = np.where(df['date_died_ons']<=df['end_date'], df['death_category'], "alive")
 
-# derive time-to-death from positive test date
-df['pvetestSGSS_to_death'] = (df['date_event'] - df['date_sgss_positive_test']).astype('timedelta64[D]')
-df['pvetestPC_to_death'] = (df['date_event'] - df['date_probable_covid_pos_test']).astype('timedelta64[D]')
+# list occurances of +ve SGSS tests and proabable +ve covid tests 
+pos_tests = ["probable_covid_pos_test", "sgss_positive_test"]
+df_pos_tests = pd.DataFrame(np.nan, index=range(1,n+1), columns=pos_tests)
+for list in pos_tests:
+    for i in range(1, n+1):
+        df_pos_tests[list][i]=  f"{list}_{i}_date"
 
 ## positive test as indicated in SGSS or in primary care
-df_pvetestSGSS = df[~np.isnan(df['date_sgss_positive_test'])]
-df_pvetestPC = df[~np.isnan(df['date_probable_covid_pos_test'])]
+df_pvetestPC=pd.melt(df,id_vars =["date_event","indicator_death","indicator_death_covid","indicator_death_noncovid"],value_name ="date_probable_covid_pos_test" ,value_vars=df_pos_tests["probable_covid_pos_test"])
+df_pvetestSGSS=pd.melt(df,id_vars =["date_event","indicator_death","indicator_death_covid","indicator_death_noncovid"],value_name ="date_sgss_positive_test" ,value_vars=df_pos_tests["sgss_positive_test"])
 
+# derive time-to-death from positive test date
+df_pvetestSGSS['pvetestSGSS_to_death'] = (df_pvetestSGSS['date_event'] - df_pvetestSGSS['date_sgss_positive_test']).astype('timedelta64[D]')
+df_pvetestPC['pvetestPC_to_death'] = (df_pvetestPC['date_event'] - df_pvetestPC['date_probable_covid_pos_test']).astype('timedelta64[D]')
+
+## remove those without a positive test
+df_pvetestSGSS = df_pvetestSGSS[~np.isnan(df_pvetestSGSS['date_sgss_positive_test'])]
+df_pvetestPC = df_pvetestPC[~np.isnan(df_pvetestPC['date_probable_covid_pos_test'])]
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,5), sharey=True)
 
@@ -63,13 +69,6 @@ def smoothing(df):
 
 smoothing(kmdata_covid)
 smoothing(kmdata_noncovid)
-
-### add rounding
-# def km_round(df,threshold):
-#     to=1/math.floor(df["atrisk"].max()/(threshold+1))
-#     df["kmestimate"]=round(df["kmestimate"]/to,9).apply(math.ceil)*to
-#  km_round(kmdata_covid,5)
-#  km_round(kmdata_noncovid,5)
  
 axes[0].plot(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[0].plot(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
@@ -88,10 +87,6 @@ kmdata_noncovid = KMestimate(df_pvetestPC['pvetestPC_to_death'], df_pvetestPC['i
 smoothing(kmdata_covid)
 smoothing(kmdata_noncovid)
 
-### add rounding
-# km_round(kmdata_covid,5)
-# km_round(kmdata_noncovid,5)
-
 axes[1].plot(kmdata_covid['times'], 1-kmdata_covid['kmestimate'], label='covid deaths') 
 axes[1].plot(kmdata_noncovid['times'], 1-kmdata_noncovid['kmestimate'], label = 'non-covid deaths')
 axes[1].set_xlabel('Days')
@@ -102,4 +97,3 @@ axes[1].set_xlim(0, 80)
 fig.suptitle("Days from positive test to death", y=1.05, fontsize=14)
 fig.tight_layout()
 fig.savefig("output/figs.svg")
-

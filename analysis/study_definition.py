@@ -9,7 +9,7 @@ from cohortextractor import (
 ## CODE LISTS
 # All codelist are held within the codelist/ folder.
 from codelists import *
-
+from config import n, min_days
 
 # gp_consultation_date_X: Creates n columns for each consecutive GP consulation date
 def date_X(codes,n):
@@ -23,6 +23,7 @@ def date_X(codes,n):
                     find_first_match_in_period=True,
                     return_expectations={
                         "date": {"earliest": from_date, "latest": to_date},
+                        "incidence": 1/i, #to help check events_pp in counts.py works
                         }
                     ),
         }
@@ -31,15 +32,37 @@ def date_X(codes,n):
         if i == 1:
             variables = var_signature(f"{codes[6:]}_1_date", "index_date")
         else:
-            variables.update(var_signature(f"{codes[6:]}_{i}_date", f"{codes[6:]}_{i-1}_date + 21 days"))
+            variables.update(var_signature(f"{codes[6:]}_{i}_date", f"{codes[6:]}_{i-1}_date + {min_days} days"))
     return variables
 
+def sgss_X(n):
+    def var_signature(name, on_or_after):
+        return {
+            name: patients.with_test_result_in_sgss(
+                    pathogen="SARS-CoV-2",
+                    returning="date",
+                    on_or_after=on_or_after,
+                    date_format="YYYY-MM-DD",
+                    find_first_match_in_period=True,
+                    return_expectations={
+                        "date": {"earliest": from_date, "latest": to_date},
+                        "incidence": 1/i, 
+                        }
+                    ),
+        }
+    
+    for i in range(1, n+1):
+        if i == 1:
+            variables = var_signature(f"sgss_positive_test_1_date", "index_date")
+        else:
+            variables.update(var_signature(f"sgss_positive_test_{i}_date", f"sgss_positive_test_{i-1}_date + {min_days} days"))
+    return variables
 
 
 ## STUDY POPULATION
 # Defines both the study population and points to the important covariates
 
-n = 4
+
 from_date = "2020-02-01"
 to_date = "2021-11-28"
 
@@ -142,15 +165,7 @@ study = StudyDefinition(
     **date_X("codes_suspected_covid",n=n),    
     **date_X("codes_covid_unrelated_to_case_status",n=n),    
     **date_X("codes_suspected_covid_had_antigen_test",n=n),
-
-    date_sgss_positive_test=patients.with_test_result_in_sgss(
-        pathogen="SARS-CoV-2",
-        test_result="positive",
-        find_first_match_in_period=True,
-        returning="date",
-        date_format="YYYY-MM-DD",
-        return_expectations={"date": {"earliest": from_date}},
-    ),
+    **sgss_X(n=n),
 
 
     # Outcomes

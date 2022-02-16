@@ -89,7 +89,5 @@ def redact_small_numbers(df, n, colname):
         
         return column
                 
-    df_list = []
     df[colname] = suppress_column(df[colname])
-    df_list.append(df)
-    return pd.concat(df_list, axis=0) 
+    return df

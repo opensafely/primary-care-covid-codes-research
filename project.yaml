@@ -28,6 +28,7 @@ actions:
       moderately_sensitive: 
         tabdata: output/tabledata.csv
         cohort_2: output/codecounts_week.csv
+        df2: output/events_pp.csv
         
   freq_plots:
     run: python:latest python analysis/freq_plot.py

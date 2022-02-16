@@ -1,25 +1,18 @@
 import pandas as pd
-from config import start_date, end_date, date_cols
+from config import start_date, end_date,n
 import sys
 sys.path.append('lib/')
 from functions import *
-
-# def redact_small_numbers(df, column):
-#     mask = df[column].isin([1, 2, 3, 4, 5])
-#     df.loc[mask, column] = 0
-#     return df
 
 # import data
 df = pd.read_feather(
    'output/input.feather'
 )
 
-df['test2'] = df[[col for col in df.columns if col.endswith('_date')]].sum(axis=1)
 # Make a dataframe with consecutive dates
 consec_dates = pd.DataFrame(
     index=pd.date_range(start=start_date, end=end_date, freq="D")
 )
-codelists = ["antigen_negative","exposure_to_disease","historic_covid","probable_covid_sequelae","potential_historic_covid","probable_covid", "probable_covid_pos_test","suspected_covid_advice","suspected_covid_had_test","suspected_covid_isolation","suspected_covid_nonspecific","suspected_covid","covid_unrelated_to_case_status","suspected_covid_had_antigen_test"]
 
 # choose only date variables
 activity_dates = df[[col for col in df.columns if col.endswith('_date')]]
@@ -27,13 +20,28 @@ activity_dates.columns = activity_dates.columns.str.replace("_date", "")
 
 # count code activity per day
 codecounts_day = activity_dates.apply(lambda x: eventcountseries(event_dates=x, date_range = consec_dates))
+
+# select the codelists with multiple events 
+codelists = ["antigen_negative","exposure_to_disease","historic_covid","probable_covid_sequelae","potential_historic_covid","probable_covid", "probable_covid_pos_test","suspected_covid_advice","suspected_covid_had_test","suspected_covid_isolation","suspected_covid_nonspecific","suspected_covid","covid_unrelated_to_case_status","suspected_covid_had_antigen_test","sgss_positive_test"]
+
+#### help to decide on the appropriate maximum amount of events per patient. NOT TO BE RELEASED!!
+events_pp = pd.DataFrame(np.nan, index=range(1,n+1), columns=codelists)
+for list in codelists:
+    for i in range(1, n+1):
+        events_pp[list][i]=  codecounts_day[[col for col in codecounts_day.columns if col.startswith(f"{list}_{i}")]].sum(axis=0)
+
+events_pp.to_csv("output/events_pp.csv") # NOT TO BE RELEASED!!
+
+# collapse multiple events into one for each codelist 
 for list in codelists:
     codecounts_day[list] =  codecounts_day[[col for col in codecounts_day.columns if col.startswith(list)]].sum(axis=1)
 
 codecounts_day=codecounts_day.filter(items=codelists)
+
 #derive count activity per week
 codecounts_week = codecounts_day.resample('W').sum()
 
+# small number redaction
 cols= codecounts_week.columns.values.tolist()
 for col in codelists:
     codecounts_week=redact_small_numbers(codecounts_week,5,col)
