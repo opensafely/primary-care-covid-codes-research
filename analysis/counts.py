@@ -11,7 +11,9 @@ from functions import *
 df = pd.read_feather("output/input.feather")
 
 # Make a dataframe with consecutive dates
-consec_dates = pd.DataFrame(index=pd.date_range(start=start_date, end=end_date, freq="D"))
+consec_dates = pd.DataFrame(
+    index=pd.date_range(start=start_date, end=end_date, freq="D")
+)
 
 # choose only date variables
 activity_dates = df[[col for col in df.columns if col.endswith("_date")]]
@@ -65,7 +67,7 @@ codecounts_week = codecounts_day.resample("W").sum()
 # small number redaction
 cols = codecounts_week.columns.values.tolist()
 for col in codelists:
-    codecounts_week = redact_small_numbers(codecounts_week, 5, col)
+    codecounts_week = redact_small_numbers_minimal(codecounts_week, col)
 
 
 # derive total code activity over whole time period
@@ -173,12 +175,16 @@ tabledata = {
 
 tabledata = pd.DataFrame(tabledata, index=tableindex)
 tabledata["Codelist"] = (
-    "<a href='" + tabledata["link"] + "' target='_blank'>" + tabledata["Codelist"] + "</a>"
+    "<a href='"
+    + tabledata["link"]
+    + "' target='_blank'>"
+    + tabledata["Codelist"]
+    + "</a>"
 )
 
 codecounts_total.name = "Count"
 
 tabledata = tabledata.merge(codecounts_total, left_index=True, right_index=True)
-redact_small_numbers(tabledata, 5, "Count").to_csv("output/tabledata.csv")
+redact_small_numbers_minimal(tabledata, "Count").to_csv("output/tabledata.csv")
 
 codecounts_week.to_csv("output/codecounts_week.csv")
