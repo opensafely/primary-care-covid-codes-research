@@ -46,7 +46,7 @@ pos_tests = ["probable_covid_pos_test", "sgss_positive_test"]
 df_pos_tests = pd.DataFrame(np.nan, index=range(1, n + 1), columns=pos_tests)
 for list in pos_tests:
     for i in range(1, n + 1):
-        df_pos_tests[list][i] = f"{list}_{i}_date"
+        df_pos_tests[list][i] = f"{list}_X{i}_date"
 
 ## positive test as indicated in SGSS or in primary care
 df_pvetestPC = pd.melt(
@@ -88,7 +88,9 @@ fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 5), sharey=True)
 
 # SGSS pos test to death
 
-kmdata = KMestimate(df_pvetestSGSS["pvetestSGSS_to_death"], df_pvetestSGSS["indicator_death"])
+kmdata = KMestimate(
+    df_pvetestSGSS["pvetestSGSS_to_death"], df_pvetestSGSS["indicator_death"]
+)
 kmdata_covid = KMestimate(
     df_pvetestSGSS["pvetestSGSS_to_death"], df_pvetestSGSS["indicator_death_covid"]
 )
@@ -107,7 +109,9 @@ def smoothing(df):
 smoothing(kmdata_covid)
 smoothing(kmdata_noncovid)
 
-axes[0].plot(kmdata_covid["times"], 1 - kmdata_covid["kmestimate"], label="covid deaths")
+axes[0].plot(
+    kmdata_covid["times"], 1 - kmdata_covid["kmestimate"], label="covid deaths"
+)
 axes[0].plot(
     kmdata_noncovid["times"],
     1 - kmdata_noncovid["kmestimate"],
@@ -132,7 +136,9 @@ kmdata_noncovid = KMestimate(
 smoothing(kmdata_covid)
 smoothing(kmdata_noncovid)
 
-axes[1].plot(kmdata_covid["times"], 1 - kmdata_covid["kmestimate"], label="covid deaths")
+axes[1].plot(
+    kmdata_covid["times"], 1 - kmdata_covid["kmestimate"], label="covid deaths"
+)
 axes[1].plot(
     kmdata_noncovid["times"],
     1 - kmdata_noncovid["kmestimate"],

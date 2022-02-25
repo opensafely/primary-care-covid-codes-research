@@ -48,7 +48,7 @@ events_pp = pd.DataFrame(np.nan, index=range(1, n + 1), columns=codelists)
 for list in codelists:
     for i in range(1, n + 1):
         events_pp[list][i] = codecounts_day[
-            [col for col in codecounts_day.columns if col.startswith(f"{list}_{i}")]
+            [col for col in codecounts_day.columns if col.startswith(f"{list}_X{i}")]
         ].sum(axis=0)
 
 events_pp.to_csv("output/events_pp.csv")  # NOT TO BE RELEASED!!
@@ -56,9 +56,10 @@ events_pp.to_csv("output/events_pp.csv")  # NOT TO BE RELEASED!!
 # collapse multiple events into one for each codelist
 for list in codelists:
     codecounts_day[list] = codecounts_day[
-        [col for col in codecounts_day.columns if col.startswith(list)]
+        [col for col in codecounts_day.columns if col.startswith(f"{list}_X")]
     ].sum(axis=1)
 
+codecounts_day.columns = codecounts_day.columns.str.rstrip("_X")
 codecounts_day = codecounts_day.filter(items=codelists)
 
 # derive count activity per week
