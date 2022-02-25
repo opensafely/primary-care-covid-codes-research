@@ -31,11 +31,12 @@ def date_X(codes, n):
 
     for i in range(1, n + 1):
         if i == 1:
-            variables = var_signature(f"{codes[6:]}_1_date", "index_date")
+            variables = var_signature(f"{codes[6:]}_X1_date", "index_date")
         else:
             variables.update(
                 var_signature(
-                    f"{codes[6:]}_{i}_date", f"{codes[6:]}_{i-1}_date + {min_days} days"
+                    f"{codes[6:]}_X{i}_date",
+                    f"{codes[6:]}_X{i-1}_date + {min_days} days",
                 )
             )
     return variables
@@ -59,12 +60,12 @@ def sgss_X(n):
 
     for i in range(1, n + 1):
         if i == 1:
-            variables = var_signature(f"sgss_positive_test_1_date", "index_date")
+            variables = var_signature(f"sgss_positive_test_X1_date", "index_date")
         else:
             variables.update(
                 var_signature(
-                    f"sgss_positive_test_{i}_date",
-                    f"sgss_positive_test_{i-1}_date + {min_days} days",
+                    f"sgss_positive_test_X{i}_date",
+                    f"sgss_positive_test_X{i-1}_date + {min_days} days",
                 )
             )
     return variables
