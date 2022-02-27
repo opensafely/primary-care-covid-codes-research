@@ -47,6 +47,7 @@ def sgss_X(n):
         return {
             name: patients.with_test_result_in_sgss(
                 pathogen="SARS-CoV-2",
+                test_result="positive",
                 returning="date",
                 on_or_after=on_or_after,
                 date_format="YYYY-MM-DD",
