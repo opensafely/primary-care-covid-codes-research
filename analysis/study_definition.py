@@ -9,7 +9,7 @@ from cohortextractor import (
 ## CODE LISTS
 # All codelist are held within the codelist/ folder.
 from codelists import *
-from config import min_days, n
+from config import m, min_days, n
 
 
 # gp_consultation_date_X: Creates n columns for each consecutive GP consulation date
@@ -48,6 +48,7 @@ def sgss_X(n):
             name: patients.with_test_result_in_sgss(
                 pathogen="SARS-CoV-2",
                 test_result="positive",
+                restrict_to_earliest_specimen_date=False,
                 returning="date",
                 on_or_after=on_or_after,
                 date_format="YYYY-MM-DD",
@@ -157,19 +158,19 @@ study = StudyDefinition(
         },
     ),
     # covid-related code dates
-    **date_X("codes_antigen_negative", n=n),
+    **date_X("codes_antigen_negative", n=m),
     **date_X("codes_exposure_to_disease", n=n),
     **date_X("codes_historic_covid", n=n),
-    **date_X("codes_potential_historic_covid", n=n),
-    **date_X("codes_probable_covid", n=n),
+    **date_X("codes_potential_historic_covid", n=m),
+    **date_X("codes_probable_covid", n=m),
     **date_X("codes_probable_covid_pos_test", n=n),
     **date_X("codes_probable_covid_sequelae", n=n),
-    **date_X("codes_suspected_covid_advice", n=n),
-    **date_X("codes_suspected_covid_had_test", n=n),
+    **date_X("codes_suspected_covid_advice", n=m),
+    **date_X("codes_suspected_covid_had_test", n=m),
     **date_X("codes_suspected_covid_isolation", n=n),
     **date_X("codes_suspected_covid_nonspecific", n=n),
-    **date_X("codes_suspected_covid", n=n),
-    **date_X("codes_covid_unrelated_to_case_status", n=n),
+    **date_X("codes_suspected_covid", n=m),
+    **date_X("codes_covid_unrelated_to_case_status", n=m),
     **date_X("codes_suspected_covid_had_antigen_test", n=n),
     **sgss_X(n=n),
     # Outcomes

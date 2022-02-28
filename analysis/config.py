@@ -8,4 +8,5 @@ end_date = pd.to_datetime("2021-11-28", format="%Y-%m-%d")
 min_days = 21
 
 # set maximum number of events per patient
-n = 6
+n = 9
+m = 9

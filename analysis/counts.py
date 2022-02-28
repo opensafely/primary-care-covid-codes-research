@@ -2,7 +2,7 @@ import sys
 
 import pandas as pd
 
-from config import end_date, n, start_date
+from config import end_date, m, start_date
 
 sys.path.append("lib/")
 from functions import *
@@ -44,9 +44,9 @@ codelists = [
 ]
 
 #### help to decide on the appropriate maximum amount of events per patient. NOT TO BE RELEASED!!
-events_pp = pd.DataFrame(np.nan, index=range(1, n + 1), columns=codelists)
+events_pp = pd.DataFrame(np.nan, index=range(1, m + 1), columns=codelists)
 for list in codelists:
-    for i in range(1, n + 1):
+    for i in range(1, m + 1):
         events_pp[list][i] = codecounts_day[
             [col for col in codecounts_day.columns if col.startswith(f"{list}_X{i}")]
         ].sum(axis=0)
