@@ -2,7 +2,7 @@ import sys
 
 import pandas as pd
 
-from config import end_date, m, start_date
+from config import end_date, m, n, start_date
 
 sys.path.append("lib/")
 from functions import *
@@ -17,7 +17,7 @@ consec_dates = pd.DataFrame(
 
 # choose only date variables
 activity_dates = df[[col for col in df.columns if col.endswith("_date")]]
-activity_dates.columns = activity_dates.columns.str.replace("_date", "")
+activity_dates.columns = activity_dates.columns.str.replace("_date", "X")
 
 # count code activity per day
 codecounts_day = activity_dates.apply(
@@ -25,30 +25,42 @@ codecounts_day = activity_dates.apply(
 )
 
 # select the codelists with multiple events
-codelists = [
-    "antigen_negative",
+codelists_n = [
     "exposure_to_disease",
     "historic_covid",
     "probable_covid_sequelae",
-    "potential_historic_covid",
-    "probable_covid",
     "probable_covid_pos_test",
-    "suspected_covid_advice",
-    "suspected_covid_had_test",
     "suspected_covid_isolation",
     "suspected_covid_nonspecific",
-    "suspected_covid",
-    "covid_unrelated_to_case_status",
     "suspected_covid_had_antigen_test",
     "sgss_positive_test",
 ]
 
+
+codelists_m = [
+    "antigen_negative",
+    "potential_historic_covid",
+    "suspected_covid_advice",
+    "suspected_covid_had_test",
+    "covid_unrelated_to_case_status",
+    "suspected_covid",
+    "probable_covid",
+]
+codelists = codelists_n + codelists_m
+
 #### help to decide on the appropriate maximum amount of events per patient. NOT TO BE RELEASED!!
-events_pp = pd.DataFrame(np.nan, index=range(1, m + 1), columns=codelists)
-for list in codelists:
+events_pp = pd.DataFrame(0, index=range(1, m + 1), columns=codelists)
+for list in codelists_n:
+    for i in range(1, n + 1):
+        events_pp[list][i] = codecounts_day[
+            [col for col in codecounts_day.columns if col.startswith(f"{list}_X{i}X")]
+        ].sum(axis=0)
+
+
+for list in codelists_m:
     for i in range(1, m + 1):
         events_pp[list][i] = codecounts_day[
-            [col for col in codecounts_day.columns if col.startswith(f"{list}_X{i}")]
+            [col for col in codecounts_day.columns if col.startswith(f"{list}_X{i}X")]
         ].sum(axis=0)
 
 events_pp.to_csv("output/events_pp.csv")  # NOT TO BE RELEASED!!
@@ -59,7 +71,7 @@ for list in codelists:
         [col for col in codecounts_day.columns if col.startswith(f"{list}_X")]
     ].sum(axis=1)
 
-codecounts_day.columns = codecounts_day.columns.str.rstrip("_X")
+codecounts_day.columns = codecounts_day.columns.str.strip("_X")
 codecounts_day = codecounts_day.filter(items=codelists)
 
 # derive count activity per week
