@@ -6,19 +6,14 @@ def eventcountseries(event_dates, date_range, rule="D", popadjust=False):
     # to calculate the daily count for events recorded in a series
     # where event_dates is a series
     # set popadjust = 1000, say, to report counts per 1000 population
-
     pop = event_dates.size
-
     counts = event_dates.value_counts().reindex(date_range.index, fill_value=0)
-
     if rule != "D":
         counts = counts.resample(rule).sum()
-
     if popadjust is not False:
         pop = event_dates.size
         poppern = pop / popadjust
         counts = counts.transform(lambda x: x / poppern)
-
     return counts
 
 
