@@ -175,14 +175,14 @@ study = StudyDefinition(
     **sgss_X(n=n),
     # Outcomes
     died_ons_covid=patients.with_these_codes_on_death_certificate(
-        codes_covid_death,
+        covid_icd10,
         returning="binary_flag",
         on_or_after=from_date,
         match_only_underlying_cause=False,
         return_expectations={"date": {"earliest": from_date}},
     ),
     died_ons_covid_underlying=patients.with_these_codes_on_death_certificate(
-        codes_covid_death,
+        covid_icd10,
         returning="binary_flag",
         on_or_after=from_date,
         match_only_underlying_cause=True,

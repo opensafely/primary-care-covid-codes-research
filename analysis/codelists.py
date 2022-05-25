@@ -90,6 +90,6 @@ codes_suspected_covid_had_antigen_test = codelist_from_csv(
     column="code",
 )
 
-codes_covid_death = codelist_from_csv(
+covid_icd10 = codelist_from_csv(
     "codelists/opensafely-covid-identification.csv", system="icd10", column="icd10_code"
 )
