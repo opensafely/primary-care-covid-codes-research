@@ -45,9 +45,31 @@ actions:
       moderately_sensitive:  
         figs: output/figs.svg
 
+  generate_study_population_1:
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_monthly --index-date-range "2020-03-01 to 2021-03-01 by month" --output-format feather
+    outputs:
+      highly_sensitive:
+        cohort: output/monthly/input_monthly_*.feather
+
+  generate_study_population_2:
+      run: cohortextractor:latest generate_cohort --study-definition study_definition_monthly --index-date-range "2021-04-01 to 2022-05-01 by month" --output-format feather
+      outputs:
+        highly_sensitive:
+          cohort: output/monthly/input_monthly*.feather
+
+  generate_measures:
+    run: >
+      cohortextractor:latest generate_measures
+        --study-definition study_definition_monthly
+        --output-dir output/monthly
+    needs: [generate_study_population_1,generate_study_population_2]
+    outputs:
+      moderately_sensitive:
+        measure: output/monthly/measure_*.csv     
+
   notebook_md:
     run: jupyter:latest jupyter nbconvert /workspace/notebooks/primary-care-covid-codes.ipynb --execute --to html --template basic --output-dir=/workspace/output --ExecutePreprocessor.timeout=86400 --no-input
-    needs: [generate_cohort,km_plots,counts]
+    needs: [generate_cohort,km_plots,counts,generate_measures]
     outputs:
       moderately_sensitive:
         md: output/primary-care-covid-codes.html
