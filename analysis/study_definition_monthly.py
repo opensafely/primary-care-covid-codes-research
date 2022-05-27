@@ -17,7 +17,30 @@ study = StudyDefinition(
         "incidence": 0.2,
     },
     # This line defines the study population
-    population=patients.registered_as_of("index_date"),
+    population = patients.satisfying(
+    """
+        NOT has_died
+        AND
+        registered
+    """,
+    registered=patients.registered_as_of("index_date"),
+    
+    has_died = patients.died_from_any_cause(
+      on_or_before = "index_date",
+      returning = "binary_flag",
+    ),
+    ),
+    
+    
+    age=patients.age_as_of(
+        "index_date",
+        return_expectations={
+            "rate": "universal",
+            "int": {"distribution": "population_ages"},
+        },
+    ),
+
+
 
     sgss_positive=patients.with_test_result_in_sgss(
                 pathogen="SARS-CoV-2",
