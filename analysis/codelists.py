@@ -95,5 +95,5 @@ covid_icd10 = codelist_from_csv(
 )
 
 codes_covid_caseness = codelist_from_csv(
-    "codelists/user-candrews-covid_caseness.csv", system="ctv3", column="code"
+    "codelists/user-candrews-covid_caseness.csv", system="snomed", column="code"
 )
