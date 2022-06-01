@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import pandas as pd
 
-codecounts_week = pd.read_csv(filepath_or_buffer="output/codecounts_week.csv")
+codecounts_week = pd.read_csv(filepath_or_buffer="output/caseness/codecounts_week.csv")
 codecounts_total = codecounts_week.sum()
 
 #################################### plots 1 ###################################
@@ -23,8 +23,8 @@ def plotstyle(axesrow, axescol, title):
 
 fig, axs = plt.subplots(2, 2, figsize=(15, 12), sharey=False, sharex=True)
 
-probable = ["probable_covid", "probable_covid_pos_test", "probable_covid_sequelae"]
-probable_lab = ["probable case", "positive test", "sequalae"]
+probable = ["probable_covid", "probable_covid_pos_test", "probable_covid_sequelae","covid_caseness"]
+probable_lab = ["probable case", "positive test", "sequalae","covid caseness"]
 for i in range(0, len(probable)):
     axs[0, 0].plot(
         codecounts_week["Unnamed: 0"],
@@ -83,4 +83,4 @@ axs[1, 1].legend()
 plotstyle(1, 1, "Primary Care antigen negative\n")
 
 plt.tight_layout()
-plt.savefig("output/plots.svg")
+plt.savefig("output/caseness/plots.svg")

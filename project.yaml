@@ -11,65 +11,16 @@ actions:
       highly_sensitive:
         cohort: output/input.feather
 
-  generate_report:
-    run: cohort-report:v3.0.0 output/input.feather
-    needs: [generate_cohort]
-    config:
-      output_path: output/cohort_reports_outputs
-    outputs:
-      moderately_sensitive:
-        reports: output/cohort_reports_outputs/descriptives_input.html
-        reports_charts: output/cohort_reports_outputs/*.png
-
   counts:
     run: python:latest python analysis/counts.py
     needs: [generate_cohort]
     outputs:
       moderately_sensitive: 
-        tabdata: output/tabledata.csv
-        cohort_2: output/codecounts_week.csv
-        df2: output/events_pp.csv
-        
+        cohort_2: output/caseness/codecounts_week.csv
+
   freq_plots:
     run: python:latest python analysis/freq_plot.py
     needs: [counts]
     outputs:
       moderately_sensitive:  
-        plots: output/plots.svg
-#        figs: output/figs.svg
-
-  km_plots:
-    run: python:latest python analysis/km_plot.py
-    needs: [generate_cohort]
-    outputs:
-      moderately_sensitive:  
-        figs: output/figs.svg
-
-  generate_study_population_1:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition_monthly --index-date-range "2020-03-01 to 2021-03-01 by month" --output-format feather
-    outputs:
-      highly_sensitive:
-        cohort: output/monthly/input_monthly_*.feather
-
-  generate_study_population_2:
-      run: cohortextractor:latest generate_cohort --study-definition study_definition_monthly --index-date-range "2021-04-01 to 2022-05-01 by month" --output-format feather
-      outputs:
-        highly_sensitive:
-          cohort: output/monthly/input_monthly*.feather
-
-  generate_measures:
-    run: >
-      cohortextractor:latest generate_measures
-        --study-definition study_definition_monthly
-        --output-dir output/monthly
-    needs: [generate_study_population_1,generate_study_population_2]
-    outputs:
-      moderately_sensitive:
-        measure: output/monthly/measure_*.csv     
-
-  notebook_md:
-    run: jupyter:latest jupyter nbconvert /workspace/notebooks/primary-care-covid-codes.ipynb --execute --to html --template basic --output-dir=/workspace/output --ExecutePreprocessor.timeout=86400 --no-input
-    needs: [generate_cohort,km_plots,counts,generate_measures]
-    outputs:
-      moderately_sensitive:
-        md: output/primary-care-covid-codes.html
+        plots: output/caseness/plots.svg
