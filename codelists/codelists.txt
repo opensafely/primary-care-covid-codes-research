@@ -12,5 +12,5 @@ opensafely/covid-identification-in-primary-care-suspected-covid-nonspecific-clin
 opensafely/covid-identification-in-primary-care-suspected-covid-suspected-codes/2020-07-16
 opensafely/covid-identification-in-primary-care-unrelated-to-case-status/2020-06-23
 user/candrews/covid-identification-in-primary-care-suspected-covid-had-antigen-test/0e9a3b10
-
+user/candrews/covid_caseness/3e3f62d9
 opensafely/covid-identification/2020-06-03

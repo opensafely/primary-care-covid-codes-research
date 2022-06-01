@@ -158,6 +158,7 @@ study = StudyDefinition(
         },
     ),
     # covid-related code dates
+    **date_X("codes_covid_caseness", n=m),
     **date_X("codes_antigen_negative", n=m),
     **date_X("codes_exposure_to_disease", n=n),
     **date_X("codes_historic_covid", n=n),

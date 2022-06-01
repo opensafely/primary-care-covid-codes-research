@@ -84,6 +84,12 @@
       "downloaded_at": "2022-01-10 15:17:02.927950Z",
       "sha": "50ded39eb8de6bccc98c630523e35c1225b828b8"
     },
+    "user-candrews-covid_caseness.csv": {
+      "id": "user/candrews/covid_caseness/3e3f62d9",
+      "url": "https://codelists.opensafely.org/codelist/user/candrews/covid_caseness/3e3f62d9/",
+      "downloaded_at": "2022-05-31 16:18:41.637849Z",
+      "sha": "d75be83639a67f00beb62235bbb1ad3493781c6b"
+    },
     "opensafely-covid-identification.csv": {
       "id": "opensafely/covid-identification/2020-06-03",
       "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification/2020-06-03/",
