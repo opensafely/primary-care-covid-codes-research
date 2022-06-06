@@ -63,8 +63,15 @@ codecounts_day = codecounts_day.filter(items=codelists)
 codecounts_week = codecounts_day.resample("W").sum()
 
 # small number redaction
-cols = codecounts_week.columns.values.tolist()
-for col in codelists:
-    codecounts_week = redact_small_numbers_minimal(codecounts_week, col)
+# cols = codecounts_week.columns.values.tolist()
+# for col in codelists:
+#     codecounts_week = redact_small_numbers_minimal(codecounts_week, col)
+
+def redact_round_table(df_in):
+    """Redacts counts <= 5 and rounds counts to nearest 5"""
+    df_in = df_in.where(df_in > 5, np.nan).apply(lambda x: 5 * round(x / 5))
+    return df_in
+
+codecounts_week=redact_round_table(codecounts_week)
 
 codecounts_week.to_csv("output/caseness/codecounts_week.csv")
