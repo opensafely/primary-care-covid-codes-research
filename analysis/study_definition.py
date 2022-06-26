@@ -165,6 +165,7 @@ study = StudyDefinition(
     **date_X("codes_potential_historic_covid", n=m),
     **date_X("codes_probable_covid", n=m),
     **date_X("codes_probable_covid_pos_test", n=n),
+    **date_X("codes_probable_covid_pos_test_snomed", n=n),
     **date_X("codes_probable_covid_sequelae", n=n),
     **date_X("codes_suspected_covid_advice", n=m),
     **date_X("codes_suspected_covid_had_test", n=m),

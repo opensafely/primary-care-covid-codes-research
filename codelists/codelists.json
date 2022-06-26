@@ -36,6 +36,12 @@
       "downloaded_at": "2022-01-25 11:31:55.516498Z",
       "sha": "510e103970c4131e6e276fd3b5094b68d2e7905c"
     },
+    "user-candrews-covid-identification-in-primary-care-probable-covid-positive-test-snomed.csv": {
+      "id": "user/candrews/covid-identification-in-primary-care-probable-covid-positive-test-snomed/174a2190",
+      "url": "https://codelists.opensafely.org/codelist/user/candrews/covid-identification-in-primary-care-probable-covid-positive-test-snomed/174a2190/",
+      "downloaded_at": "2022-06-26 19:27:05.257837Z",
+      "sha": "19fb4eeec74571da8db9c26882c6f7b420501fcb"
+    },
     "opensafely-covid-identification-in-primary-care-probable-covid-sequelae.csv": {
       "id": "opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16",
       "url": "https://codelists.opensafely.org/codelist/opensafely/covid-identification-in-primary-care-probable-covid-sequelae/2020-07-16/",

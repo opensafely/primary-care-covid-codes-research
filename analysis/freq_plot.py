@@ -23,8 +23,8 @@ def plotstyle(axesrow, axescol, title):
 
 fig, axs = plt.subplots(2, 2, figsize=(15, 12), sharey=False, sharex=True)
 
-probable = ["probable_covid", "probable_covid_pos_test", "probable_covid_sequelae","covid_caseness"]
-probable_lab = ["probable case", "positive test", "sequalae","covid caseness"]
+probable = ["probable_covid", "probable_covid_pos_test", "probable_covid_sequelae","probable_covid_pos_test_snomed"]
+probable_lab = ["probable case", "positive test", "sequalae","positive test snomed"]
 for i in range(0, len(probable)):
     axs[0, 0].plot(
         codecounts_week["Unnamed: 0"],
