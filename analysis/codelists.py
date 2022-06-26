@@ -94,6 +94,11 @@ covid_icd10 = codelist_from_csv(
     "codelists/opensafely-covid-identification.csv", system="icd10", column="icd10_code"
 )
 
+codes_probable_covid_pos_test_snomed  = codelist_from_csv(
+    "codelists/user-candrews-covid-identification-in-primary-care-probable-covid-positive-test-snomed.csv", system="snomed", column="code"
+)
+
 codes_covid_caseness = codelist_from_csv(
     "codelists/user-candrews-covid_caseness.csv", system="snomed", column="code"
 )
+

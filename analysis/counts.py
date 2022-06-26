@@ -35,7 +35,7 @@ codelists_n = [
     "suspected_covid_nonspecific",
     "suspected_covid_had_antigen_test",
     "sgss_positive_test",
-    "covid_caseness"
+    "probable_covid_pos_test_snomed"
 ]
 
 
